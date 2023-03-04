@@ -31,7 +31,9 @@ print('Processing subject: ', subject)
 print('Processing session: ', ses)
 print('Processing task: ', task)
 
-ica=False # FIXME
+# The current example uses PCA/SSP to remove eye blinks and heartbeat artefacts. This is good in the piloting stage.
+# In the final pipeline, you may want to use ica to remove artefacts. Change ica to True to switch to a (precomputed) ica solution.
+ica=False # UPDATE ME ONCE ICA IS IMPLEMENTED
 
 
 if task=='audvis':
@@ -63,13 +65,15 @@ del raws
 
 
 #################################################
-# Remove artefacts, currently using PCA!!!!! You will probably want to change this to ICA (set ica to True)
+# Remove artefacts, currently using PCA/SSP. You will probably want to change this to ICA (set ica to True)
 if ica==False:
-    projs_ecg, _ = mne.preprocessing.compute_proj_ecg(raw, n_grad=2, n_mag=2)
-    projs_eog, _ = mne.preprocessing.compute_proj_eog(raw, n_grad=2, n_mag=2)
-        
-    raw.info['projs'] += projs_ecg
-    raw.info['projs'] += projs_eog
+    projs_ecg, _ = mne.preprocessing.compute_proj_ecg(raw, n_grad=2, n_mag=2, no_proj = True)
+    # change n_grad and n_mag to 2 if you want to remove more than 1 eye movement component
+    projs_eog, _ = mne.preprocessing.compute_proj_eog(raw, n_grad=1, n_mag=1, no_proj = True, reject = None)
+
+    raw.add_proj(projs_ecg, remove_existing=False)    
+    raw.add_proj(projs_eog, remove_existing=False) 
+
     raw.apply_proj()
 #################################################
 
@@ -83,7 +87,7 @@ epochs = mne.Epochs(raw, events, event_ids, epoch_tmin, epoch_tmax, baseline = b
                     preload=True, reject=reject, proj=False) 
 
 
-# Apply precomputed ICA
+# Apply precomputed ICA, choose filename according to your config file
 if ica==True:
     ica= mne.preprocessing.read_ica(fname.ica(subject=subject, method='infomax', ses=ses, task=task))
 
