@@ -41,30 +41,34 @@ pos_file = fname.pos(subject=subject, task=task, run=run, ses=ses)
 # extract bad channels of the current subject
 #current_bad = bad_channels.query(f'subject=={subject} and session=={ses} and run=={run}').channels.iloc[0] # Where you keep the information about your bad channels
 
+# Fit SSS sphere origin to digitization points using fit_sphere_to_isotrak function
+origin_args = ['/neuro/bin/util/fit_sphere_to_isotrak', '-f', input_file]
+output = subprocess.check_output(args=origin_args, text=True).strip()
+
+origin = output.split(' ')
+
 # args to be used in maxfilter
 #args = ['maxfilter', '-f', input_file, '-o', output_file, '-trans', \
 #            trans_file, '-movecomp', 'inter', '-st', '60', \
-#            '-v','-autobad','off','-hpicons','-origin','fit',\
-#            '-frame','head', '-bad'] +  current_bad.split()
+#            '-v','-autobad','off','-hpicons','-origin'] + origin + ['-frame', \
+#            'head', '-bad'] +  current_bad.split()
 
 # With automatic detection of bad channels, which sometimes can be problematic
 # args = ['maxfilter', '-f', input_file, '-o', output_file, '-trans', \
 #                 trans_file, '-movecomp', 'inter', '-st', '16', \
-#                 '-v','-autobad','on','-hpicons','-origin','fit',\
-#                 '-in', '8', '-out', '3', '-frame','head', \
-#                  '-hp', pos_file ]   
+#                 '-v','-autobad','on','-hpicons','-origin'] + origin + ['-in', \
+#                 '8', '-out', '3', '-frame','head', \
+#                 '-hp', pos_file ]   
 
 
 # The sample dataset does not have continuous HPI
 args = ['maxfilter', '-f', input_file, '-o', output_file, '-trans', \
                  trans_file, '-st', '16', \
-                 '-v','-autobad','on','-origin','fit',\
-                 '-in', '8', '-out', '3', '-frame','head', \
-                  '-hp', pos_file ]  
+                 '-v','-autobad','on','-origin'] + origin + ['-in', '8', \
+                 '-out', '3', '-frame', 'head', '-hp', pos_file ]  
 
     # save the log and errors
-log_output = open(fname.tsss_log(subject=subject, run=run, ses=ses, task=task), 
-                          "w") 
+log_output = open(fname.tsss_log(subject=subject, run=run, ses=ses, task=task), "w") 
         
 # run maxfilter
 subprocess.run(args=args, stdout=log_output,stderr=log_output)
