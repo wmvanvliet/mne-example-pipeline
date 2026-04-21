@@ -1,85 +1,47 @@
-"""Example of how to use mne_bids to convert your data into the BIDS format."""
+"""Convert the original data to the BIDS format."""
 
 import mne
+import mne_bids
 
-from mne_bids import write_raw_bids, BIDSPath, print_dir_tree
+import config
+from config import fname
 
-from config import study_path
-
-# Sample subject
-subject_in = "sample"
-
-# Rawdata folder
-data_path = op.join(study_path, "MEG")
-
-# Output file
-output_path = op.join(study_path, "BIDS")
-subject_out = "01"  # subject-id: '01' -> 'sub-01' in BIDS structure
-
-# Define event IDs according to your project
-# events = {'Category1':1, 'Category2': 2, 'Other event': 3}
-
-# For the sample data:
-events = {
-    "auditory/left": 1,
-    "auditory/right": 2,
-    "visual/left": 3,
-    "visual/right": 4,
-    "smiley": 5,
-    "buttonpress": 32,
-}
-
-
-def create_BIDS(
-    filename, subject_in, subject_out, session, run, proc, task, event_id
-):  # add date if necessary
-
-    # Read in data
-    raw_fname = op.join(
-        data_path, subject_in, filename
-    )  # Folder structure for recorded raw data
-    # raw_fname = op.join(data_path, 'MEG', subject_in, date, filename) # Add date if necessary
-    raw = mne.io.read_raw_fif(raw_fname)
-    events_data = mne.find_events(raw, min_duration=2 / 1000.0)
-
-    bids_path = BIDSPath(
-        subject=subject_out,
-        session=session,
-        task=task,
-        run=run,
-        processing=proc,
-        root=output_path,
-    )
-
-    write_raw_bids(
-        raw, bids_path, events_data=events_data, event_id=event_id, overwrite=True
-    )
-
-    print_dir_tree(output_path)
-
-
-#######################################################################
-# Session 1
-# date = 'YYMMDD' # date when measured, if in folder structure
-session = "01"
-proc = "raw"
-
-###########
-# Task: audvis
+# In this experiment, we only have a single task.
+# If you have more tasks, you can create another loop over them.
 task = "audvis"
 
-# Filename, run 1
-filename = "sample_audvis_run01_ses01_raw.fif"  # Fill in name of rawdata-file 1
-run = "01"
+# Loop over all subjects, sessions, and runs
+for subject in config.subjects:
+    for session in config.sessions:
+        for run in config.runs_per_task[task]:  # each task can have different runs
+            # By setting preload=False, we only read the information about the recording
+            # (sensors, samplerate, etc.) and not the actual MEG data. This saves a lot
+            # of time.
+            raw = mne.io.read_raw_fif(
+                fname.raw_meg(subject=subject, session=session, run=run), preload=False
+            )
+            events = mne.find_events(raw, min_duration=0.002)
 
-create_BIDS(
-    filename, subject_in, subject_out, session, run, proc, task, events
-)  # add date if necessary
+            # In BIDS filenames, it is common to add leading zeros to `subject`,
+            # `session`, and `run`. So instead of 1, we use "01".
+            # This conversion is done below using Python's "f-strings" functionality.
+            # For example: `:02d` means to add zeros until the string has a length of 2.
+            bids_path = mne_bids.BIDSPath(
+                subject=f"{subject:02d}",
+                session=f"{session:02d}",
+                task=task,
+                run=f"{run:02d}",
+                processing="raw",
+                root=fname.bids_path,
+            )
 
-# Filename, run 2
-filename = "sample_audvis_run02_ses01_raw.fif"  # Fill in name of rawdata-file 2
-run = "02"
+            mne_bids.write_raw_bids(
+                raw,
+                bids_path,
+                events=events,
+                event_id=config.event_id,
+                overwrite=True,
+            )
 
-create_BIDS(
-    filename, subject_in, subject_out, session, run, proc, task, events
-)  # add date if necessary
+print("Done! Here are all the files that were produced:")
+mne_bids.print_dir_tree(fname.bids_path)

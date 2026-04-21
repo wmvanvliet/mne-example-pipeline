@@ -7,8 +7,78 @@ Configuration parameters for the study.
 """
 
 import os
-from fnames import FileNames
 
+import pandas as pd
+from filename_templates import FileNames
+
+########################################################################################
+# Data folders. SET THESE TO MATCH YOUR OWN SYSTEM.
+########################################################################################
+
+# Folder containing the raw data recorded during the project.
+raw_data_path = "./data/raw"
+
+# Folder containing the BIDS version of the data.
+bids_path = "./data/bids"
+
+# Folder to write the processed MEG data to.
+processed_data_path = "./data/processed"
+
+# Folder for the MRIs that have been processed with FreeSurfer (SUBJECTS_DIR).
+subjects_dir = "./data/bids/derivatives/freesurfer"
+
+########################################################################################
+# Experiment design: subjects, session, runs, tasks, event codes, etc.
+########################################################################################
+
+# The subjects to include in the analysis pipeline. You can comment-out subjects to
+# remove them from the analysis if there was some problem with the data.
+subjects = [
+    1,
+    2,
+    # 3,  metal present in body causing too many artifacts
+]
+
+# "Sessions" are different recording days for the same participant.
+sessions = [1, 2]
+
+# "Runs" are blocks of trials, run during the same session. For example, all the trials
+# before the participant took a break could be a "run". "Tasks" are different
+# experimental paradigms. We often have a different number of runs per task.
+tasks = ["audvis", "emptyroom"]
+runs_per_task = {
+    "audvis": [1, 2],
+    "emptyroom": [1],
+}
+
+# Events and their trigger-codes.
+# "description of the event": trigger-code
+event_id = {
+    "visual/left": 1,
+    "visual/right": 2,
+    "auditory/left": 3,
+    "auditory/right": 4,
+    "smiley": 5,
+    "buttonpress": 32,
+}
+
+# Manually defined bad channels.
+bad_channels = [
+    dict(subject=1, session=1, task="audvis", run=1, channels=["MEG 2443", "EEG 053"]),
+    dict(subject=1, session=1, task="audvis", run=2, channels=["MEG 2443", "EEG 053"]),
+    dict(subject=1, session=2, task="audvis", run=1, channels=["MEG 2443", "EEG 053"]),
+    dict(subject=1, session=2, task="audvis", run=2, channels=["MEG 2443", "EEG 053"]),
+    dict(subject=2, session=1, task="audvis", run=1, channels=["MEG 2443", "EEG 053"]),
+    dict(subject=2, session=1, task="audvis", run=2, channels=["MEG 2443", "EEG 053"]),
+    dict(subject=2, session=2, task="audvis", run=1, channels=["MEG 2443", "EEG 053"]),
+    dict(subject=2, session=2, task="audvis", run=2, channels=["MEG 2443", "EEG 053"]),
+]
+bad_channels = pd.DataFrame(bad_channels).explode("channels")
+
+
+########################################################################################
+# Common parameters used in multiple analysis scripts.
+########################################################################################
 
 # Preprocessing with maxfilter
 proc = "tsss"
@@ -22,72 +92,55 @@ default_baseline = (-0.2, 0)
 # Source spacing
 spacing = "ico4"
 
-sessions = ["01", "02"]
+########################################################################################
+# Templates for filenames.
+#
+# These are all the filenames used in the analysis in one place. Try to be consistent
+# and always define your filenames here, instead of in individual analysis scripts.
+# See here for documentation on how these templates work:
+# https://github.com/wmvanvliet/filename-templates#filename-templates
+#
+# In short:
+#  - Placeholders, such as `{subject}`, become parameters for the filename function.
+#  - Placeholders that already exist as a filename alias, such as `{raw_path}`, are
+#    filled automatically.
+#  - Placeholders follow Python's string formatting syntax.
+#    For example: `{subject:02d}` means a zero-padded number.
+#    See: https://docs.python.org/3/library/string.html#format-examples
+########################################################################################
 
-tasks = ["audvis"]
-
-session1 = {
-    "audvis": ["01", "02"],
-    #         'restEO'   :['01'], # other tasks included in you experiment
-    #         'restEC'   :['01'],
-    #         'emptyroom':['01']
-}
-
-session2 = {
-    "audvis": ["01", "02"],
-    #         'restEO'   :['01','02'], # other tasks included in you experiment
-    #         'emptyroom':['01']
-}
-###############################################################################
-# Folders (TODO: decide on folder structure)
-
-data_path = os.path.join(study_path, "BIDS/")
-processed_dir = os.path.join(study_path, "processed/")
-
-# BIDS compatible subjects_dir:
-subjects_dir = os.path.join(data_path, "derivatives/", "freesurfer/")
-
-# The sample data stores the freesurfer results in:
-# subjects_dir = os.path.join(data_path, 'subjects/')
-
-os.environ["SUBJECTS_DIR"] = subjects_dir
-
-
-###############################################################################
-# Subjects
-
-subjects = ["01"]  # sample subject changed to '01' in bidsification
-
-# Subject-codes for freesurfing
-subject_info = {
-    "sub-s01": "S01/SNNNN/00002",  # folder-structure for raw mris, here the T1 sequence is in folder 00002
-}
-
-###############################################################################
-# Templates for filenames
 fname = FileNames()
+# fmt: off
+# ruff: disable[E501]
 
-# Some directories
-fname.add("data_path", data_path)
-fname.add("megbids_dir", "{data_path}/{subject}/ses-{ses}/meg/")
+# These are the folders specified at the top of this config file.
+fname.add("raw_path", raw_data_path)
+fname.add("bids_path", raw_data_path)
+fname.add("processed_path", processed_data_path)
 fname.add("subjects_dir", subjects_dir)
-fname.add("processed_dir", processed_dir)
-fname.add("megprocessed_dir", "{processed_dir}{subject}/ses-{ses}/meg/")
 
-# Add these so we can use them in the filenames
+# Add these so we can use them in the filenames.
 fname.add("spacing", spacing)
+fname.add("task", "audvis")  # the task is always "audvis" this example experiment
 
-# Maxfilter
-fname.add("pos", "{megbids_dir}/{subject}_ses-{ses}_task-{task}_run-{run}_movecomp.pos")
-fname.add(
-    "tsss_log", "{megbids_dir}/{subject}_ses-{ses}_task-{task}_run-{run}_tsss_log.log"
-)
+# Original raw data, before BIDS conversion.
+fname.add("raw_meg", "{raw_path}/meg/sub{subject:02d}_session{session}_run{run}_raw.fif")
+fname.add("raw_mri", "{raw_path}/mri/sub{subject:02d}.mgz")
+
+# Raw data, after BIDS conversion.
+fname.add("raw", "{bids_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_raw.fif")
+
+# Manually annotated bad channels.
+fname.add("bad_channels", "bad_channels.csv")
+
+# Files produced by Maxfilter.
+# `mkdir=True` means that the folder will be created if it doesn't exist yet.
+fname.add("pos", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_run-{run}_movecomp.pos", mkdir=True)
+fname.add("tsss_log", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_run-{run}_tsss_log.log", mkdir=True)
 
 # Sensor-level files
-fname.add(
-    "raw", "{megbids_dir}/{subject}_ses-{ses}_task-{task}_run-{run}_proc-{proc}_meg.fif"
-)
-fname.add("epochs", "{megprocessed_dir}/epochs/{subject}_ses-{ses}_task-{task}-epo.fif")
+fname.add("raw_tsss", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_run-{run}_tsss_raw.fif", mkdir=True)
+fname.add("epochs", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_epo.fif", mkdir=True)
 fname.add(
     "epochs_proc",
     "{megprocessed_dir}/epochs/{subject}_ses-{ses}_task-{task}_proc-{proc}-epo.fif",
@@ -132,3 +185,8 @@ fname.add(
     "{megprocessed_dir}/stcs/{subject}_ses-{ses}_task-{task}-{condition}-{hemi}.stc",
 )
 fname.add("stc", "{megprocessed_dir}/stcs/{subject}_ses-{ses}_task-{task}-{condition}")
+
+# Add `subjects_dir` as an environment variable for convenience. This way, you don't
+# have to specify `subjects_dir=subjects_dir` all the time when using MNE-Python
+# functions.
+os.environ["SUBJECTS_DIR"] = subjects_dir

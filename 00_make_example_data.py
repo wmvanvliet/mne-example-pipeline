@@ -1,5 +1,6 @@
 """
-Download example data for testing the pipeline.
+Create an example dataset for testing the pipeline.
+This script is not part of the data analysis pipeline itself.
 
 The example data somes from the MNE-sample dataset:
 https://mne.tools/stable/documentation/datasets.html#sample
