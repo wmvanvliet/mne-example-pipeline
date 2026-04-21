@@ -1,3 +1,5 @@
+#! /bin/sh
+
 # Step 01: Convert everything to BIDS
 python 01_convert_to_BIDS
 
