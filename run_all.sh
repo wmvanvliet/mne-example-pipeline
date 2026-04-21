@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # Step 01: Convert everything to BIDS
-python 01_convert_to_BIDS
+python 01_convert_to_BIDS.py
 
 # Step 02: run maxfilter
 python 02_tsss.py -sub=1 -ses=1 -task=audvis -run=1
