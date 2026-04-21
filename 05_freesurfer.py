@@ -1,6 +1,8 @@
 """
 Segment the MRI using Freesurfer.
 
+This takes a pretty long time (hours!).
+
 Make sure that Freesurfer is properly configured before running this script:
 
 module load freesurfer
@@ -8,7 +10,6 @@ source /work/modules/Ubuntu/20.04/amd64/t314/freesurfer/7.3.2/FreeSurferEnv.sh
 """
 
 import argparse
-import os
 import subprocess
 
 import mne
@@ -23,20 +24,6 @@ args = parser.parse_args()
 subject = args.sub
 # Convert the number into the corresponding FreeSurfer subject: 1 -> sub-01
 freesurfer_subject = f"sub-{subject:02d}"
-
-
-def run_program(args, log_file):
-    """Run a command and write the output to both the terminal and a file."""
-    print("Running:", " ".join([f"'{a}'" if " " in str(a) else str(a) for a in args]))
-    with open(log_file, "wb") as fid:
-        proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        for line in proc.stdout:
-            fid.write(line)
-    if proc.wait() != 0:
-        raise RuntimeError("Command failed")
-
-
-# Run FreeSurfer (takes a LONG time!)
 print("Running FreeSurfer on subject:", subject)
 
 # fmt: off
