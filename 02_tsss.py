@@ -20,9 +20,7 @@ from config import fname
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("-sub", required=True, type=int, help="The subject to process")
 parser.add_argument("-ses", required=True, type=int, help="The session to process")
-parser.add_argument(
-    "-task", required=False, default="audvis", help="The task to process"
-)
+parser.add_argument("-task", default="audvis", help="The task to process")
 parser.add_argument("-run", required=True, type=int, help="The run to process")
 args = parser.parse_args()
 
@@ -32,9 +30,9 @@ task = args.task
 run = args.run
 
 print("Run tSSS on subject:", subject)
-print("Running session:", session)
-print("Running task:", task)
-print("Running run:", run)
+print("Session:", session)
+print("Task:", task)
+print("Run:", run)
 
 # Use the manually pre-selected bad channels in the config file.
 # Alternatively, we can use automatic detection of bad channels.

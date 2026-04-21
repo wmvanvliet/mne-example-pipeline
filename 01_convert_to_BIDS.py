@@ -1,4 +1,6 @@
-"""Convert the original data to the BIDS format."""
+"""
+Convert the original data to the BIDS format.
+"""
 
 import mne
 import mne_bids

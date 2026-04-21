@@ -148,9 +148,7 @@ fname.add(
 fname.add("evoked", "{megprocessed_dir}/evoked/{subject}_ses-{ses}_task-{task}-ave.fif")
 
 # Artefact removal
-fname.add(
-    "ica", "{megprocessed_dir}/ica/{subject}_ses-{ses}_task-{task}_{method}-ica.fif"
-)
+fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_run-{run}_ica.fif", mkdir=True)
 
 # Coregistration files (WIP)
 fname.add("fid", "{subjects_dir}/{subject}/bem/{subject}-fiducials.fif")
