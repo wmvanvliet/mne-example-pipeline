@@ -115,7 +115,7 @@ fname = FileNames()
 
 # These are the folders specified at the top of this config file.
 fname.add("raw_path", raw_data_path)
-fname.add("bids_path", raw_data_path)
+fname.add("bids_path", bids_path)
 fname.add("processed_path", processed_data_path)
 fname.add("subjects_dir", subjects_dir)
 
@@ -128,7 +128,7 @@ fname.add("raw_meg", "{raw_path}/meg/sub{subject:02d}_session{session}_run{run}_
 fname.add("raw_mri", "{raw_path}/mri/sub{subject:02d}.mgz")
 
 # Raw data, after BIDS conversion.
-fname.add("raw", "{bids_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_raw.fif")
+fname.add("raw", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_proc-raw_meg.fif")
 
 # Manually annotated bad channels.
 fname.add("bad_channels", "bad_channels.csv")
@@ -139,7 +139,7 @@ fname.add("pos", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{sess
 fname.add("tsss_log", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_run-{run}_tsss_log.log", mkdir=True)
 
 # Sensor-level files
-fname.add("raw_tsss", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_run-{run}_tsss_raw.fif", mkdir=True)
+fname.add("raw_tsss", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_run-{run}_proc-tsss_meg.fif", mkdir=True)
 fname.add("epochs", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_epo.fif", mkdir=True)
 fname.add(
     "epochs_proc",

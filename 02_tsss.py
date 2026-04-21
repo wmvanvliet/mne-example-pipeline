@@ -18,10 +18,12 @@ from config import fname
 
 # Handle command line arguments
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("-sub", type=int, help="The subject to process")
-parser.add_argument("-ses", type=int, help="The session to process")
-parser.add_argument("-task", default="audvis", help="The task to process")
-parser.add_argument("-run", type=int, help="The run to process")
+parser.add_argument("-sub", required=True, type=int, help="The subject to process")
+parser.add_argument("-ses", required=True, type=int, help="The session to process")
+parser.add_argument(
+    "-task", required=False, default="audvis", help="The task to process"
+)
+parser.add_argument("-run", required=True, type=int, help="The run to process")
 args = parser.parse_args()
 
 subject = args.sub
@@ -40,11 +42,15 @@ current_bads = config.bad_channels.query(
     f"subject=={subject} and session=={session} and task=='{task}' and run=={run}"
 ).channels.tolist()
 
+print(fname.raw(subject=subject, session=session, task=task, run=run))
+
 # Args to be used in maxfilter
 # fmt: off
 maxfilter_args = [
-    #"maxfilter",
-    "echo",
+    "maxfilter",
+
+    # The site where the data was recorded (biomag, Aalto_TRIUXneo)
+    "-site", "biomag",
 
     # Input file.
     "-f", fname.raw(subject=subject, session=session, task=task, run=run),
@@ -66,7 +72,7 @@ maxfilter_args = [
     "-hpicons",
     "-origin", "fit",
     "-frame", "head",
-    "-in" "8",
+    "-in", "8",
     "-out", "3",
 
     # Whether to use manually pre-selected bad channels or automatic detection.
