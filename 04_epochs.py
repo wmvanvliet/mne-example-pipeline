@@ -22,7 +22,7 @@ args = parser.parse_args()
 subject = args.sub
 session = args.ses
 task = args.task
-print("Run ICA on subject:", subject)
+print("Cut epochs for subject:", subject)
 print("Session:", session)
 print("Task:", task)
 
