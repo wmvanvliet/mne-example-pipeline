@@ -1,25 +1,24 @@
-# -*- coding: utf-8 -*-
 """
-Coordinate frame alignment.
-Works with new mne (0.20.0) and new mayavi (4.7.1), still freezes sometimes and needs restarting
+Coordinate frame alignment using a GUI.
 
-In terminal, before starting e.g. spyder
+In terminal, before starting e.g. spyder:
 ml freesurfer
 export FREESURFER_HOME=/work/modules/Ubuntu/14.04/amd64/t314/freesurfer/6.0.0
-
 """
+
 import mne
 
-from mne.datasets import sample
+from config import fname
 
-subject = 'sub-01'
-data_path = sample.data_path()
-subjects_dir = data_path + '/BIDS/derivatives/freesurfer/'
+subject = 1
+freesurfer_subject = "sub-01"
 
+## Coregistration
 
-## Coregistration 
-
-mne.gui.coregistration(subject=subject, subjects_dir=subjects_dir)
+mne.gui.coregistration(
+    subject=freesurfer_subject,
+    inst=fname.raw(subject=subject, session=1, task="audvis", run=1),
+)
 
 # 1. Load digitalization source (head shape source) from any tsss file
 # 2. Edit Fiducaials (left side panel)
@@ -34,5 +33,5 @@ mne.gui.coregistration(subject=subject, subjects_dir=subjects_dir)
 ## Check coregistration
 
 # info = mne.io.read_info(test_data)
-# ## surfaces: 'head-dense' = high resolution, 'head' = low reso, 'brain' = pial 
+# ## surfaces: 'head-dense' = high resolution, 'head' = low reso, 'brain' = pial
 # mne.viz.plot_alignment(info, coreg, subject=subject, dig=True, meg=['helmet', 'sensors'], subjects_dir=subjects_dir, surfaces='head-dense')

@@ -77,10 +77,18 @@ maxfilter_args = [
 ] + current_bads
 # fmt: on
 
-# Save the log and errors produced by the maxfilter program to this file.
-log_output = open(
-    fname.tsss_log(subject=subject, run=run, session=session, task=task), "w"
-)
 
-# Run maxfilter.
-subprocess.run(args=maxfilter_args, stdout=log_output, stderr=log_output)
+def run_program(args, log_file):
+    """Run a command and write the output to both the terminal and a file."""
+    print("Running:", " ".join([f"'{a}'" if " " in str(a) else str(a) for a in args]))
+    with open(log_file, "wb") as fid:
+        proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        for line in proc.stdout:
+            fid.write(line)
+    if proc.wait() != 0:
+        raise RuntimeError("Command failed")
+
+
+run_program(
+    maxfilter_args, fname.tsss_log(subject=subject, run=run, session=session, task=task)
+)

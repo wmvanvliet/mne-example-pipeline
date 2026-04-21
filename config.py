@@ -141,10 +141,13 @@ fname.add("tsss_log", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-
 # Sensor-level files
 fname.add("raw_tsss", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_proc-tsss_meg.fif", mkdir=True)
 fname.add("epochs", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_epo.fif", mkdir=True)
-fname.add("evoked", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_ave.fif")
+fname.add("evoked", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_ave.fif", mkdir=True)
 
 # Artefact removal
 fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_ica.fif", mkdir=True)
+
+# Files produced by FreeSurfer
+fname.add("freesurfer_log", "{processed_path}/sub-{subject:02d}/freesurfer_log.log", mkdir=True)
 
 # Coregistration files (WIP)
 fname.add("fid", "{subjects_dir}/{subject}/bem/{subject}-fiducials.fif")
