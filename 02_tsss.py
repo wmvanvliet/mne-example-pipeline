@@ -42,53 +42,39 @@ current_bads = config.bad_channels.query(
 
 # Args to be used in maxfilter
 # fmt: off
-maxfilter_args = [
-    "maxfilter",
+subprocess.run(
+    args = [
+        "maxfilter",
 
-    # The site where the data was recorded (biomag, Aalto_TRIUXneo)
-    "-site", "biomag",
+        # The site where the data was recorded (biomag, Aalto_TRIUXneo)
+        "-site", "biomag",
 
-    # Input file.
-    "-f", fname.raw(subject=subject, session=session, task=task, run=run),
+        # Input file.
+        "-f", fname.raw(subject=subject, session=session, task=task, run=run),
 
-    # Output file.
-    "-o", fname.raw_tsss(subject=subject, session=session, task=task, run=run),
+        # Output file.
+        "-o", fname.raw_tsss(subject=subject, session=session, task=task, run=run),
 
-    # Virtually move the head position within the helmet to the location in this file.
-    "-trans", fname.raw(subject=subject, session=1, task=task, run=1),
+        # Virtually move the head position to the location in this file.
+        "-trans", fname.raw(subject=subject, session=1, task=task, run=1),
 
-    # Write the continuous head position to a file.
-    "-hp", fname.pos(subject=subject, session=session, task=task, run=run),
+        # Write the continuous head position to a file.
+        "-hp", fname.pos(subject=subject, session=session, task=task, run=run),
 
-    # Uncomment this to enable continuous head movement compensation.
-    # "-movecomp", "inter",
+        # Uncomment this to enable continuous head movement compensation.
+        # "-movecomp", "inter",
 
-    "-st", "60",
-    "-v",
-    "-hpicons",
-    "-origin", "fit",
-    "-frame", "head",
-    "-in", "8",
-    "-out", "3",
+        "-st", "60",
+        "-v",
+        "-hpicons",
+        "-origin", "fit",
+        "-frame", "head",
+        "-in", "8",
+        "-out", "3",
 
-    # Whether to use manually pre-selected bad channels or automatic detection.
-    "-autobad", "off",  # alternatively: "-autobad", "on"
-    "-bad",  # value will be the `current_bads` below
-] + current_bads
-# fmt: on
-
-
-def run_program(args, log_file):
-    """Run a command and write the output to both the terminal and a file."""
-    print("Running:", " ".join([f"'{a}'" if " " in str(a) else str(a) for a in args]))
-    with open(log_file, "wb") as fid:
-        proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        for line in proc.stdout:
-            fid.write(line)
-    if proc.wait() != 0:
-        raise RuntimeError("Command failed")
-
-
-run_program(
-    maxfilter_args, fname.tsss_log(subject=subject, run=run, session=session, task=task)
+        # Whether to use manually pre-selected bad channels or automatic detection.
+        "-autobad", "off",  # alternatively: "-autobad", "on"
+        "-bad",  # value will be the `current_bads` below
+    ] + current_bads
 )
+# fmt: on

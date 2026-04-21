@@ -35,22 +35,20 @@ def run_program(args, log_file):
     if proc.wait() != 0:
         raise RuntimeError("Command failed")
 
-# Make sure folders exist
-os.makedirs(fname.subjects_dir, exist_ok=True)
-os.makedirs(f"{fname.subjects_dir}/{freesurfer_subject}/bem", exist_ok=True)
-
-# fmt: off
-recon_all_args = [
-    "recon-all", "-all",
-    "-s", freesurfer_subject,
-    "-sd", fname.subjects_dir,
-    "-i", fname.raw_mri(subject=subject),
-]
-# fmt: on
 
 # Run FreeSurfer (takes a LONG time!)
 print("Running FreeSurfer on subject:", subject)
-run_program(recon_all_args, fname.freesurfer_log(subject=subject))
+
+# fmt: off
+subprocess.run(
+    args = [
+        "recon-all", "-all",
+        "-s", freesurfer_subject,
+        "-sd", fname.subjects_dir,
+        "-i", fname.raw_mri(subject=subject),
+    ]
+)
+# fmt: on
 
 # Set up MRI-images for analysis with MNE-python
 mne.bem.make_watershed_bem(freesurfer_subject, overwrite=True)

@@ -114,10 +114,11 @@ fname = FileNames()
 # ruff: disable[E501]
 
 # These are the folders specified at the top of this config file.
+# `mkdir=True` means that the folder will be created if it doesn't exist yet.
 fname.add("raw_path", raw_data_path)
-fname.add("bids_path", bids_path)
-fname.add("processed_path", processed_data_path)
-fname.add("subjects_dir", subjects_dir)
+fname.add("bids_path", bids_path, mkdir=True)
+fname.add("processed_path", processed_data_path, mkdir=True)
+fname.add("subjects_dir", subjects_dir, mkdir=True)
 
 # Add these so we can use them in the filenames.
 fname.add("spacing", spacing)
@@ -128,26 +129,18 @@ fname.add("raw_meg", "{raw_path}/meg/sub{subject:02d}_session{session}_run{run}_
 fname.add("raw_mri", "{raw_path}/mri/sub{subject:02d}.mgz")
 
 # Raw data, after BIDS conversion.
-fname.add("raw", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_proc-raw_meg.fif")
-
-# Manually annotated bad channels.
-fname.add("bad_channels", "bad_channels.csv")
+fname.add("raw", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_proc-raw_meg.fif", mkdir=True)
 
 # Files produced by Maxfilter.
-# `mkdir=True` means that the folder will be created if it doesn't exist yet.
 fname.add("pos", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_movecomp.pos", mkdir=True)
-fname.add("tsss_log", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_tsss_log.log", mkdir=True)
+fname.add("raw_tsss", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_proc-tsss_meg.fif", mkdir=True)
 
 # Sensor-level files
-fname.add("raw_tsss", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_proc-tsss_meg.fif", mkdir=True)
 fname.add("epochs", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_epo.fif", mkdir=True)
 fname.add("evoked", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_ave.fif", mkdir=True)
 
 # Artefact removal
 fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_ica.fif", mkdir=True)
-
-# Files produced by FreeSurfer
-fname.add("freesurfer_log", "{processed_path}/sub-{subject:02d}/freesurfer_log.log", mkdir=True)
 
 # Coregistration files (WIP)
 fname.add("fid", "{subjects_dir}/{subject}/bem/{subject}-fiducials.fif")

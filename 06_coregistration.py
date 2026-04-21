@@ -6,19 +6,28 @@ ml freesurfer
 export FREESURFER_HOME=/work/modules/Ubuntu/14.04/amd64/t314/freesurfer/6.0.0
 """
 
+import argparse
+
 import mne
 
 from config import fname
 
-subject = 1
-freesurfer_subject = "sub-01"
+# Handle command line arguments
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("-sub", required=True, type=int, help="The subject to process")
+args = parser.parse_args()
+
+subject = args.sub
+# Convert the number into the corresponding FreeSurfer subject: 1 -> sub-01
+freesurfer_subject = f"sub-{subject:02d}"
 
 ## Coregistration
-
 mne.gui.coregistration(
     subject=freesurfer_subject,
     inst=fname.raw(subject=subject, session=1, task="audvis", run=1),
 )
+
+# ruff: disable[E501]
 
 # 1. Load digitalization source (head shape source) from any tsss file
 # 2. Edit Fiducaials (left side panel)
