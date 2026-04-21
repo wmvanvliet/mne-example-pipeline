@@ -37,8 +37,8 @@ for run in config.runs_per_task[task]:
             session=session,
             task=task,
             run=run,
-            preload=True,
-        )
+        ),
+        preload=True,
     )
 
     # Clean the data. First by bandpass filtering, then by applying the ICA to it.
@@ -62,7 +62,7 @@ events = mne.find_events(raw, min_duration=2 / raw.info["sfreq"])
 epochs = mne.Epochs(
     raw,
     events,
-    config.event_ids,
+    config.event_id,
     tmin=-0.2,
     tmax=1.0,
     baseline=(-0.2, 0),
