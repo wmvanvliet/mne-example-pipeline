@@ -45,7 +45,6 @@ ica = mne.preprocessing.ICA(
     method="picard",
     fit_params=dict(extended=True),
     random_state=0,  # this is important to produce the exact same solution every time
-    max_iter=600,
 )
 ica.fit(raw, decim=3)  # decim=3 means "take every 3rd sample", to speed things up
 
@@ -78,9 +77,9 @@ for component, score in enumerate(ecg_scores):
 # If you have EMG channels, you can also flag components that correlate with those.
 # emg_bads, emg_scores = ica.find_bads_emg(raw, threshold=2, measure="zscore")
 
-# Collect all the "bad" ICA components into a single list.
-# If you have EMG channels, don't forget to add them.
-ica.exclude = np.unique(eog_bads + ecg_bads).tolist()
+# Inform the ICA object of which components we wish to exclude.
+# If you have any `emg_bads`, don't forget to add them.
+ica.exclude = eog_bads + ecg_bads
 
 # Save the ICA solution.
 ica.save(

@@ -135,20 +135,16 @@ fname.add("bad_channels", "bad_channels.csv")
 
 # Files produced by Maxfilter.
 # `mkdir=True` means that the folder will be created if it doesn't exist yet.
-fname.add("pos", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_run-{run}_movecomp.pos", mkdir=True)
-fname.add("tsss_log", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_run-{run}_tsss_log.log", mkdir=True)
+fname.add("pos", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_movecomp.pos", mkdir=True)
+fname.add("tsss_log", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_tsss_log.log", mkdir=True)
 
 # Sensor-level files
-fname.add("raw_tsss", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_run-{run}_proc-tsss_meg.fif", mkdir=True)
-fname.add("epochs", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_epo.fif", mkdir=True)
-fname.add(
-    "epochs_proc",
-    "{megprocessed_dir}/epochs/{subject}_ses-{ses}_task-{task}_proc-{proc}-epo.fif",
-)
-fname.add("evoked", "{megprocessed_dir}/evoked/{subject}_ses-{ses}_task-{task}-ave.fif")
+fname.add("raw_tsss", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_proc-tsss_meg.fif", mkdir=True)
+fname.add("epochs", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_epo.fif", mkdir=True)
+fname.add("evoked", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_ave.fif")
 
 # Artefact removal
-fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_run-{run}_ica.fif", mkdir=True)
+fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_ica.fif", mkdir=True)
 
 # Coregistration files (WIP)
 fname.add("fid", "{subjects_dir}/{subject}/bem/{subject}-fiducials.fif")
