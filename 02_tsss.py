@@ -42,8 +42,6 @@ current_bads = config.bad_channels.query(
     f"subject=={subject} and session=={session} and task=='{task}' and run=={run}"
 ).channels.tolist()
 
-print(fname.raw(subject=subject, session=session, task=task, run=run))
-
 # Args to be used in maxfilter
 # fmt: off
 maxfilter_args = [
