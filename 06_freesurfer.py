@@ -37,6 +37,7 @@ subprocess.run(
         "-s", freesurfer_subject,
         "-sd", fname.subjects_dir,
         "-i", fname.mri(subject=subject),
+        "-openmp", "X",  # use all available CPUs
     ]
 )
 # fmt: on
