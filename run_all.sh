@@ -28,3 +28,16 @@ python 04_epochs.py -sub=1 -ses=1 -task=audvis
 python 04_epochs.py -sub=1 -ses=2 -task=audvis
 python 04_epochs.py -sub=2 -ses=1 -task=audvis
 python 04_epochs.py -sub=2 -ses=2 -task=audvis
+
+# Step 05: Run FreeSurfer
+python 05_freesurfer.py -sub=1
+python 05_freesurfer.py -sub=2
+
+# Step 06: Co-registration
+# You need to run this manually
+
+# Step 07: Source space and forward solution
+python 04_epochs.py -sub=1 -ses=1 -task=audvis
+python 04_epochs.py -sub=1 -ses=2 -task=audvis
+python 04_epochs.py -sub=2 -ses=1 -task=audvis
+python 04_epochs.py -sub=2 -ses=2 -task=audvis
