@@ -22,10 +22,12 @@ subject = args.sub
 freesurfer_subject = f"sub-{subject:02d}"
 
 ## Coregistration
-mne.gui.coregistration(
+gui = mne.gui.coregistration(
     subject=freesurfer_subject,
     inst=fname.raw(subject=subject, session=1, task="audvis", run=1),
 )
+
+mne.write_trans(fname.trans(gui.trans
 
 # ruff: disable[E501]
 

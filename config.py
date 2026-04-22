@@ -62,6 +62,15 @@ event_id = {
     "buttonpress": 32,
 }
 
+# Names for the experimental conditions (don't use "/" in names) and the events to use
+# for each condition.
+conditions = {
+    "visual-left": "visual/left",
+    "visual-right": "visual/right",
+    "auditory-left": "auditory/left",
+    "auditory-right": "auditory/right",
+}
+
 # Manually defined bad channels.
 bad_channels = [
     dict(subject=1, session=1, task="audvis", run=1, channels=["MEG 2443", "EEG 053"]),
@@ -79,17 +88,22 @@ bad_channels = pd.DataFrame(bad_channels).explode("channels")
 ########################################################################################
 # Common parameters used in multiple analysis scripts.
 ########################################################################################
+proc = "tsss"  # Set to `proc = "raw"` to disable maxfilter TSSS
 
-# Preprocessing with maxfilter
-proc = "tsss"
+# Bandpass filter to apply.
+bandpass = (0.05, 40)
 
-# Rejection limits
-reject = dict(mag=4e-12, grad=3000e-13)  # , eog=150e-6)
+# The baseline window for the epochs.
+baseline = (-0.2, 0)
 
-# Default baseline window
-default_baseline = (-0.2, 0)
+# The rejection thresholds for various artifacts.
+reject_eog_correlation = 0.2  # reject ICA components that correlate with EOG
+reject_ecg_correlation = 0.5  # reject ICA components that correlate with ECG
+reject_epochs = dict(mag=4e-12, grad=3000e-13)  # reject epochs with too large signals
 
-# Source spacing
+# Source "spacing" controlling the resolution of the source estimate.
+# Common choices fow a "low" resolution are: "ico4" or "oct5"
+# Common choices fow a "high" resolution are: "ico5" or "oct6"
 spacing = "ico4"
 
 ########################################################################################
@@ -125,19 +139,18 @@ fname.add("spacing", spacing)
 fname.add("task", "audvis")  # the task is always "audvis" this example experiment
 
 # Original raw data, before BIDS conversion.
-fname.add("raw_meg", "{raw_path}/meg/sub{subject:02d}_session{session}_run{run}_raw.fif")
-fname.add("raw_mri", "{raw_path}/mri/sub{subject:02d}.mgz")
+fname.add("orig_meg", "{raw_path}/meg/sub{subject:02d}_session{session}_run{run}_raw.fif")
+fname.add("orig_mri", "{raw_path}/mri/sub{subject:02d}.mgz")
 
 # Raw data, after BIDS conversion.
-fname.add("raw", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_proc-raw_meg.fif", mkdir=True)
+fname.add("raw", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_proc-{proc}_meg.fif", mkdir=True)
 
 # Files produced by Maxfilter.
 fname.add("pos", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_movecomp.pos", mkdir=True)
-fname.add("raw_tsss", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_proc-tsss_meg.fif", mkdir=True)
 
 # Sensor-level files
 fname.add("epochs", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_epo.fif", mkdir=True)
-fname.add("evoked", "{processed_path}/evokeds/sub-{subject:02d}_ses-{session:02d}_task-{task}_ave.fif", mkdir=True)
+fname.add("evokeds", "{processed_path}/evokeds/sub-{subject:02d}_ses-{session:02d}_task-{task}_ave.fif", mkdir=True)
 
 # Artefact removal
 fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_ica.fif", mkdir=True)
@@ -147,17 +160,25 @@ fname.add("fid", "{subjects_dir}/sub-{subject:02d}/bem/sub-{subject:02d}_fiducia
 fname.add("trans", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_trans.fif", mkdir=True)
 
 # Head model
-fname.add("src", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}-{spacing}-src.fif")
-fname.add("bem_sol", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}-bem-sol.fif")
-fname.add("fwd", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}-{spacing}-fwd.fif", mkdir=True)
+fname.add("src", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_spacing-{spacing}-src.fif", mkdir=True)
+fname.add("bem_sol", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_bem-sol.fif", mkdir=True)
+fname.add("fwd", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_spacing-{spacing}-fwd.fif", mkdir=True)
 
 # Inverse solution
 fname.add("noise_cov", "{processed_path}/sub-{subject:02d}_ses-{session:02d}_task-{task}_cov.fif", mkdir=True)
 fname.add("inv", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}-{spacing}-inv.fif", mkdir=True)
 
 # Source estimates
-fname.add("stc", "{processed_path}/stcs/sub-{subject:02d}_ses-{session:02d}_task-{task}-{condition}", mkdir=True)
-fname.add("stc_hemi", "{processed_path}/stcs/sub-{subject:02d}/_ses-{session:02d}_task-{task}-{condition}-{hemi}.stc", mkdir=True)
+fname.add("stc", "{processed_path}/stcs/sub-{subject:02d}_ses-{session:02d}_task-{task}_cond-{condition}", mkdir=True)
+fname.add("stc_hemi", "{processed_path}/stcs/sub-{subject:02d}_ses-{session:02d}_task-{task}_cond-{condition}-{hemi}.stc", mkdir=True)
+
+# Grand-average files
+fname.add("ga_evokeds", "{processed_path}/evokeds/GA_ses-{session:02d}_task-{task}_ave.fif", mkdir=True)
+fname.add("ga_stc", "{processed_path}/stcs/GA_ses-{session:02d}_task-{task}_cond-{condition}", mkdir=True)
+fname.add("ga_stc_hemi", "{processed_path}/stcs/GA_ses-{session:02d}_task-{task}_cond-{condition}-{hemi}.stc", mkdir=True)
+
+# fmt: on
+# ruff: enable[E501]
 
 # Add `subjects_dir` as an environment variable for convenience. This way, you don't
 # have to specify `subjects_dir=subjects_dir` all the time when using MNE-Python

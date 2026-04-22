@@ -1,12 +1,11 @@
 """Setup the source space and compute the forward solution."""
 
-import os
 import argparse
 
 import mne
 
 import config
-from config import fname, spacing
+from config import fname
 
 # Handle command line arguments
 parser = argparse.ArgumentParser(description=__doc__)
@@ -16,27 +15,24 @@ args = parser.parse_args()
 subject = args.sub
 # Convert the number into the corresponding FreeSurfer subject: 1 -> sub-01
 freesurfer_subject = f"sub-{subject:02d}"
-
 print("Computing forward solution for subject: ", subject)
 
 # Setup souce space.
 src = mne.setup_source_space(
     subject=subject,
-    spacing=spacing,
+    spacing=config.spacing,
     subjects_dir=fname.subjects_dir,
     n_jobs=-1,
     add_dist=True,
 )
-mne.write_source_spaces(
-    fname.src(subject=subject, spacing=spacing), src, overwrite=True
-)
+mne.write_source_spaces(fname.src(subject=subject), src, overwrite=True)
 
 # Create BEM model
 bem = mne.make_bem_model(
     subject=freesurfer_subject,
-    ico=4 if spacing == "ico4" else 5,
+    ico=4 if config.spacing in ("ico4", "oct5") else 5,
     subjects_dir=fname.subjects_dir,
-    conductivity=(0.3,),
+    conductivity=(0.3,),  # one-layer model, use (0.3, 0.006, 0.3) for three layers
 )
 bem_sol = mne.make_bem_solution(bem)
 mne.write_bem_solution(fname.bem_sol(subject=subject), bem_sol, overwrite=True)
@@ -57,12 +53,12 @@ for session in config.sessions:
             src=src,
             bem=bem_sol,
             meg=True,
-            eeg=False,
+            eeg=False,  # turn this on for a combined MEG+EEG head model
             mindist=0,
             n_jobs=-1,
         )
         mne.write_forward_solution(
-            fname.fwd(subject=subject, session=session, task=task, spacing=spacing),
+            fname.fwd(subject=subject, session=session, task=task),
             fwd,
             overwrite=True,
         )

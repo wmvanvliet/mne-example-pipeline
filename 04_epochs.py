@@ -32,17 +32,18 @@ for run in config.runs_per_task[task]:
     # step.
     print("Processing run: ", run)
     raw = mne.io.read_raw(
-        fname.raw_tsss(
+        fname.raw(
             subject=subject,
             session=session,
             task=task,
             run=run,
+            proc=config.proc,
         ),
         preload=True,
     )
 
     # Clean the data. First by bandpass filtering, then by applying the ICA to it.
-    raw.filter(0.05, 40)
+    raw.filter(config.bandpass)
     ica = mne.preprocessing.read_ica(
         fname.ica(subject=subject, session=session, task=task, run=run)
     )
@@ -65,22 +66,22 @@ epochs = mne.Epochs(
     config.event_id,
     tmin=-0.2,
     tmax=1.0,
-    baseline=(-0.2, 0),
-    reject=dict(mag=4e-12, grad=3000e-13),
+    baseline=config.baseline,
+    reject=config.reject_epochs,
     preload=True,
 )
 
 # Save epochs.
 epochs.save(fname.epochs(subject=subject, session=session, task=task), overwrite=True)
 
-# Calculate and save evoked responses.
+# Calculate and save evoked responses for each experimental codition.
 evokeds = list()
-conditions = config.event_id.keys()  # use the event descriptions as condition names
-for cond in conditions:
-    evoked = epochs[cond].average()
+for cond, event in config.conditions.items():
+    evoked = epochs[event].average()
+    evoked.comment = cond
     evokeds.append(evoked)
 
 # Save evoked responses
 mne.write_evokeds(
-    fname.evoked(subject=subject, session=session, task=task), evokeds, overwrite=True
+    fname.evokeds(subject=subject, session=session, task=task), evokeds, overwrite=True
 )

@@ -20,7 +20,7 @@ for subject in config.subjects:
             # (sensors, samplerate, etc.) and not the actual MEG data. This saves a lot
             # of time.
             raw = mne.io.read_raw_fif(
-                fname.raw_meg(subject=subject, session=session, run=run), preload=False
+                fname.orig_meg(subject=subject, session=session, run=run), preload=False
             )
             events = mne.find_events(raw, min_duration=0.002)
 

@@ -21,7 +21,6 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("-sub", required=True, type=int, help="The subject to process")
 parser.add_argument("-ses", required=True, type=int, help="The session to process")
 parser.add_argument("-task", default="audvis", help="The task to process")
-parser.add_argument("-run", required=True, type=int, help="The run to process")
 args = parser.parse_args()
 
 subject = args.sub
@@ -50,10 +49,12 @@ subprocess.run(
         "-site", "biomag",
 
         # Input file.
-        "-f", fname.raw(subject=subject, session=session, task=task, run=run),
+        "-f",
+        fname.raw(subject=subject, session=session, task=task, run=run, proc="raw"),
 
         # Output file.
-        "-o", fname.raw_tsss(subject=subject, session=session, task=task, run=run),
+        "-o",
+        fname.raw(subject=subject, session=session, task=task, run=run, proc="tsss"),
 
         # Virtually move the head position to the location in this file.
         "-trans", fname.raw(subject=subject, session=1, task=task, run=1),
