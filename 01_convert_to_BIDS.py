@@ -55,7 +55,7 @@ for subject in config.subjects:
             )
             shutil.copyfile(
                 fname.orig_crosstalk,
-                fname.calibration(subject=subject, session=session),
+                fname.crosstalk(subject=subject, session=session),
             )
 
             # When the issue is fixed, the above becomes:
