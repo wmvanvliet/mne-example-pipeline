@@ -50,7 +50,7 @@ subprocess.run(
     args=[
         "mne", "make_scalp_surfaces",
         "-s", freesurfer_subject,
-        "-sd", fname.subjects_dir,
+        "-d", fname.subjects_dir,
         "--overwrite",
         "--force"
     ]
