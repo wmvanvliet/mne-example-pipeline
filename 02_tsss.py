@@ -21,6 +21,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("-sub", required=True, type=int, help="The subject to process")
 parser.add_argument("-ses", required=True, type=int, help="The session to process")
 parser.add_argument("-task", default="audvis", help="The task to process")
+parser.add_argument("-run", required=True, type=int, help="The run to process")
 args = parser.parse_args()
 
 subject = args.sub
@@ -57,7 +58,8 @@ subprocess.run(
         fname.raw(subject=subject, session=session, task=task, run=run, proc="tsss"),
 
         # Virtually move the head position to the location in this file.
-        "-trans", fname.raw(subject=subject, session=1, task=task, run=1),
+        "-trans",
+        fname.raw(subject=subject, session=1, task=task, run=1, proc="raw"),
 
         # Write the continuous head position to a file.
         "-hp", fname.pos(subject=subject, session=session, task=task, run=run),
