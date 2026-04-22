@@ -32,7 +32,7 @@ subprocess.run(
         "recon-all", "-all",
         "-s", freesurfer_subject,
         "-sd", fname.subjects_dir,
-        "-i", fname.raw_mri(subject=subject),
+        "-i", fname.mri(subject=subject),
     ]
 )
 # fmt: on
