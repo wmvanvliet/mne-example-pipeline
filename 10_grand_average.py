@@ -48,4 +48,6 @@ for task in config.tasks:
                 overwrite=True,
             )
 
-        ga_evokeds.save(fname.ga_evokeds(session=session, task=task), overwrite=True)
+        mne.write_evokeds(
+            fname.ga_evokeds(session=session, task=task), ga_evokeds, overwrite=True
+        )

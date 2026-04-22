@@ -19,7 +19,7 @@ print("Computing forward solution for subject: ", subject)
 
 # Setup souce space.
 src = mne.setup_source_space(
-    subject=subject,
+    subject=freesurfer_subject,
     spacing=config.spacing,
     subjects_dir=fname.subjects_dir,
     n_jobs=-1,
@@ -45,7 +45,7 @@ for session in config.sessions:
         # Create the forward model, coregistration required (trans_file)
         # Use first run in one of the tasks for forward model
         info = mne.io.read_info(
-            fname.raw(subject=subject, session=session, task=task, run=1)
+            fname.raw(subject=subject, session=session, task=task, run=1, proc="raw")
         )
         fwd = mne.make_forward_solution(
             info,
