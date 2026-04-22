@@ -2,6 +2,8 @@
 Convert the original data to the BIDS format.
 """
 
+import shutil
+
 import mne
 import mne_bids
 
@@ -46,8 +48,19 @@ for subject in config.subjects:
             )
 
             # Write the fine calibration and crosstalk information of the scanner.
-            mne_bids.write_meg_calibration(fname.orig_calibration, bids_path)
-            mne_bids.write_meg_crosstalk(fname.orig_crosstalk, bids_path)
+            # Workaround for bug https://github.com/mne-tools/mne-bids/issues/1575
+            shutil.copyfile(
+                fname.orig_calibration,
+                fname.calibration(subject=subject, session=session),
+            )
+            shutil.copyfile(
+                fname.orig_crosstalk,
+                fname.calibration(subject=subject, session=session),
+            )
+
+            # When the issue is fixed, the above becomes:
+            # mne_bids.write_meg_calibration(fname.orig_calibration, bids_path)
+            # mne_bids.write_meg_crosstalk(fname.orig_crosstalk, bids_path)
 
 # Convert anatomical MRIs to BIDS.
 for subject in config.subjects:
