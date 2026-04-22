@@ -158,14 +158,14 @@ fname.add("calibration", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/su
 fname.add("crosstalk", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/sub-{subject:02d}_ses-{session:02d}_acq-crosstalk_meg.fif")
 
 # Files produced by Maxfilter.
-fname.add("pos", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_movecomp.pos", mkdir=True)
+fname.add("pos", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_movecomp.pos", mkdir=True)
 
 # Sensor-level files
 fname.add("epochs", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_epo.fif", mkdir=True)
 fname.add("evokeds", "{processed_path}/evokeds/sub-{subject:02d}_ses-{session:02d}_task-{task}_ave.fif", mkdir=True)
 
 # Artefact removal
-fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_ica.fif", mkdir=True)
+fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_ica.fif", mkdir=True)
 
 # Coregistration files (WIP)
 fname.add("fid", "{subjects_dir}/sub-{subject:02d}/bem/sub-{subject:02d}_fiducials.fif", mkdir=True)
