@@ -46,9 +46,6 @@ subprocess.run(
     args = [
         "maxfilter",
 
-        # The site where the data was recorded (biomag, Aalto_TRIUXneo)
-        "-site", "biomag",
-
         # Input file.
         "-f",
         fname.raw(subject=subject, session=session, task=task, run=run, proc="raw"),
@@ -74,6 +71,10 @@ subprocess.run(
         "-frame", "head",
         "-in", "8",
         "-out", "3",
+
+        # Site-specific calibration files.
+        "-cal", fname.calibration(subject=subject, session=session),
+        "-ctc", fname.crosstalk(subject=subject, session=session),
 
         # Whether to use manually pre-selected bad channels or automatic detection.
         "-autobad", "off",  # alternatively: "-autobad", "on"

@@ -15,8 +15,8 @@ from filename_templates import FileNames
 # Data folders. SET THESE TO MATCH YOUR OWN SYSTEM.
 ########################################################################################
 
-# Folder containing the raw data recorded during the project.
-raw_data_path = "./data/raw"
+# Folder containing the original data recorded during the project.
+orig_data_path = "./data/orig"
 
 # Folder containing the BIDS version of the data.
 bids_path = "./data/bids"
@@ -62,13 +62,13 @@ event_id = {
     "buttonpress": 32,
 }
 
-# Names for the experimental conditions (don't use "/" in names) and the events to use
-# for each condition.
+# Names for the experimental conditions (don't use "/" in condition names) and the
+# events to use for each condition.
 conditions = {
-    "visual-left": "visual/left",
-    "visual-right": "visual/right",
-    "auditory-left": "auditory/left",
-    "auditory-right": "auditory/right",
+    "vis_l": "visual/left",
+    "vis_r": "visual/right",
+    "aud_l": "auditory/left",
+    "aud_r": "auditory/right",
 }
 
 # Manually defined bad channels.
@@ -94,7 +94,8 @@ proc = "tsss"  # Set to `proc = "raw"` to disable maxfilter TSSS
 bandpass = (0.05, 40)
 
 # The baseline window for the epochs.
-baseline = (-0.2, 0)
+epochs_window = (-0.2, 1.0)  # in seconds relative to stimulus onset
+baseline = (-0.2, 0)  # in seconds relative to stimulus onset
 
 # The rejection thresholds for various artifacts.
 reject_eog_correlation = 0.2  # reject ICA components that correlate with EOG
@@ -116,7 +117,7 @@ spacing = "ico4"
 #
 # In short:
 #  - Placeholders, such as `{subject}`, become parameters for the filename function.
-#  - Placeholders that already exist as a filename alias, such as `{raw_path}`, are
+#  - Placeholders that already exist as a filename alias, such as `{orig_path}`, are
 #    filled automatically.
 #  - Placeholders follow Python's string formatting syntax.
 #    For example: `{subject:02d}` means a zero-padded number.
@@ -129,7 +130,7 @@ fname = FileNames()
 
 # These are the folders specified at the top of this config file.
 # `mkdir=True` means that the folder will be created if it doesn't exist yet.
-fname.add("raw_path", raw_data_path)
+fname.add("orig_path", orig_data_path)
 fname.add("bids_path", bids_path, mkdir=True)
 fname.add("processed_path", processed_data_path, mkdir=True)
 fname.add("subjects_dir", subjects_dir, mkdir=True)
@@ -138,12 +139,22 @@ fname.add("subjects_dir", subjects_dir, mkdir=True)
 fname.add("spacing", spacing)
 fname.add("task", "audvis")  # the task is always "audvis" this example experiment
 
-# Original raw data, before BIDS conversion.
-fname.add("orig_meg", "{raw_path}/meg/sub{subject:02d}_session{session}_run{run}_raw.fif")
-fname.add("orig_mri", "{raw_path}/mri/sub{subject:02d}.mgz")
+# Original raw data, before BIDS conversion. THESE WILL BE DIFFERENT FOR YOUR OWN STUDY!
+fname.add("orig_meg", "{orig_path}/meg/sub{subject:02d}_session{session}_run{run}_raw.fif")
+fname.add("orig_empty_room", "{orig_path}/meg/sub{subject:02d}_session{session}_emptyroom_raw.fif")
+fname.add("orig_mri", "{orig_path}/mri/sub{subject:02d}.mgz")
+# Scanner-specific calibration files.
+# These depends on whether you recorded the data at BioMag, Aalto, or somewhere else.
+fname.add("orig_calibration", "{orig_path}/sss_cal_biomag_triux.dat")
+fname.add("orig_crosstalk", "{orig_path}/ct_sparse_biomag_triux.fif")
 
 # Raw data, after BIDS conversion.
-fname.add("raw", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_proc-{proc}_meg.fif", mkdir=True)
+fname.add("raw", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_proc-{proc}_meg.fif")
+fname.add("mri", "{bids_path}/sub-{subject:02d}/anat/sub-{subject:02d}_T1w.nii.gz")
+
+# Scanner-specific calibration files, after BIDS conversion.
+fname.add("calibration", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/sub-{subject:02d}_ses-{session:02d}_acq-calibration_meg.dat")
+fname.add("crosstalk", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/sub-{subject:02d}_ses-{session:02d}_acq-crosstalk_meg.fif")
 
 # Files produced by Maxfilter.
 fname.add("pos", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_movecomp.pos", mkdir=True)

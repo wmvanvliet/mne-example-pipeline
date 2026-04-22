@@ -1,9 +1,8 @@
-
 help:
 	@echo "Please use \`make <target>' where <target> is one of:"
-	@echo "  all         all processing, both in sensor and source space"
-	@echo "  sensor      all processing in sensor space"
-	@echo "  source      all processing in sourse space"
+	@echo "  all         all processing steps, both in sensor and source space"
+	@echo "  sensor      all processing steps in sensor space"
+	@echo "  source      all processing steps in source space"
 	@echo "Or use one of these to run individual steps:"
 	@echo "  bids        convert the original data to BIDS format"
 	@echo "  tsss        run maxfilter on the data to perform TSSS filtering"
@@ -20,11 +19,14 @@ help:
 SUBJ := 1 2
 
 # Groups of processing steps.
-sensor: tsss ica epochs noise_cov
-source: forward inverse
+sensor: bids tsss ica epochs noise_cov
+source: forward inverse  # freesurfer
 all: sensor source ga
 
 # Individual processing steps.
+bids:
+	python 01_convert_to_BIDS.py
+
 tsss:
 	for i in $(SUBJ); do \
 		python 02_tsss.py -sub $$i -ses 1 -task audvis -run 1; \
