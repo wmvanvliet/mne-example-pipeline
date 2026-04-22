@@ -24,12 +24,6 @@ for subject in config.subjects:
             )
             events = mne.find_events(raw, min_duration=0.002)
 
-            # Read empty room recording. We don't do anything with it in the example
-            # pipeline, but since we have it, we should store it in the BIDS folder.
-            empty_room = mne.io.read_raw(
-                fname.orig_empty_room(subject=subject, session=session), preload=False
-            )
-
             # In BIDS filenames, it is common to add leading zeros to `subject`,
             # `session`, and `run`. So instead of 1, we use "01".
             # This conversion is done below using Python's "f-strings" functionality.
@@ -48,7 +42,6 @@ for subject in config.subjects:
                 bids_path,
                 events=events,
                 event_id=config.event_id,
-                empty_room=empty_room,
                 overwrite=True,
             )
 
