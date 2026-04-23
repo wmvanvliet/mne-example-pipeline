@@ -42,7 +42,7 @@ raw.filter(1, config.bandpass[1])
 
 # Obtain the mixing and unmixing matrices of the Independant Component Analysis.
 ica = mne.preprocessing.ICA(
-    n_components=0.95,
+    n_components=0.95 if config.proc == "tsss" else 0.9,
     method="picard",
     fit_params=dict(extended=True),
     random_state=0,  # this is important to produce the exact same solution every time

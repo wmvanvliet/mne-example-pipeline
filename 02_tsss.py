@@ -12,8 +12,7 @@ TODO: Update defaults to BioMag standard parameters.
 
 import argparse
 import subprocess
-
-import mne
+import sys
 
 import config
 from config import fname
@@ -35,6 +34,10 @@ print("Run tSSS on subject:", subject)
 print("Session:", session)
 print("Task:", task)
 print("Run:", run)
+
+if config.proc == "raw":
+    print("TSSS processing disabled. Nothing to be done.")
+    sys.exit(0)
 
 # Use the manually pre-selected bad channels in the config file.
 # Alternatively, we can use automatic detection of bad channels.
