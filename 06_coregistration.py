@@ -6,31 +6,22 @@ ml freesurfer
 export FREESURFER_HOME=/work/modules/Ubuntu/14.04/amd64/t314/freesurfer/6.0.0
 """
 
-import argparse
-
 import mne
 
-from config import fname
+# Subject to process
+subject = "sub01"
 
-# Handle command line arguments
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("-sub", required=True, type=int, help="The subject to process")
-parser.add_argument("-ses", required=True, type=int, help="The session to process")
-args = parser.parse_args()
-
-subject = args.sub
-session = args.ses
-# Convert the number into the corresponding FreeSurfer subject: 1 -> sub-01
-freesurfer_subject = f"sub-{subject:02d}"
 
 ## Coregistration
 gui = mne.gui.coregistration(
-    subject=freesurfer_subject,
-    inst=fname.raw(subject=subject, session=session, task="audvis", run=1, proc="raw"),
+    subject=subject,
+    inst=f"./data/orig/meg/{subject}_raw.fif",
     block=True,
 )
 
-mne.write_trans(fname.trans(subject=subject, session=session), gui.coreg.trans)
+mne.write_trans(
+    f"./data/processed/{subject}/{subject}_trans.fif", gui.coreg.trans, overwrite=True
+)
 
 # ruff: disable[E501]
 
