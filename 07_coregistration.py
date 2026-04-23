@@ -15,19 +15,22 @@ from config import fname
 # Handle command line arguments
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("-sub", required=True, type=int, help="The subject to process")
+parser.add_argument("-ses", required=True, type=int, help="The session to process")
 args = parser.parse_args()
 
 subject = args.sub
+session = args.ses
 # Convert the number into the corresponding FreeSurfer subject: 1 -> sub-01
 freesurfer_subject = f"sub-{subject:02d}"
 
 ## Coregistration
 gui = mne.gui.coregistration(
     subject=freesurfer_subject,
-    inst=fname.raw(subject=subject, session=1, task="audvis", run=1, proc="raw"),
+    inst=fname.raw(subject=subject, session=session, task="audvis", run=1, proc="raw"),
+    block=True,
 )
 
-mne.write_trans(fname.trans(subject=subject), gui.coreg.trans)
+mne.write_trans(fname.trans(subject=subject, session=session), gui.coreg.trans)
 
 # ruff: disable[E501]
 

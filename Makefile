@@ -20,7 +20,7 @@ SUBJ := 1 2
 
 # Groups of processing steps.
 sensor: bids tsss ica epochs
-source: noise_cov forward inverse  # freesurfer
+source: noise_cov forward inverse ga  # freesurfer
 all: sensor source ga
 
 # Individual processing steps.
