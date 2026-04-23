@@ -12,7 +12,6 @@ and multiple runs within a session.
 
 import os
 import shutil
-from datetime import UTC, datetime, timedelta
 
 import mne
 import mne_bids
@@ -39,11 +38,6 @@ raw = mne.io.read_raw(
     sample_data_path / "MEG/sample/sample_audvis_raw.fif", preload=True
 )
 
-# Load an empty room recording.
-empty_room = mne.io.read_raw(
-    sample_data_path / "MEG/sample/ernoise_raw.fif", preload=True
-)
-
 # Cut data into "subjects", "sessions" and "runs".
 subjects = ["sub01", "sub02"]
 sessions = ["session1", "session2"]
@@ -57,25 +51,10 @@ for subj_num, subj in enumerate(subjects, 1):
     )
 
     time_window = (0, 30)  # in seconds
-    for sess_num, sess in enumerate(sessions):
-        # Create a fake measurement date for this session. Each subject and session was
-        # recorded on a different day.
-        meas_date = datetime(2026, 4, subj_num * len(sessions) + subj_num, tzinfo=UTC)
-
-        # Pretend that the empty room recording was recorded first, at 10:00.
-        er_meas_date = meas_date + timedelta(days=sess_num, hours=10)
-        this_empty_room = empty_room.copy()
-        this_empty_room.set_meas_date(er_meas_date)
-        this_empty_room.save(
-            f"{target_data_path}/meg/{subj}_{sess}_emptyroom_raw.fif", overwrite=True
-        )
-
+    for sess in sessions:
         # Create MEG files for each run.
-        for run_num, run in enumerate(runs):
+        for run in runs:
             raw_snippet = raw.copy().crop(*time_window)
-            # Offset the measurement times for the different runs.
-            run_meas_date = er_meas_date + timedelta(hours=1, minutes=15 * run_num)
-            raw_snippet.set_meas_date(run_meas_date)
             raw_snippet.save(
                 f"{target_data_path}/meg/{subj}_{sess}_{run}_raw.fif", overwrite=True
             )

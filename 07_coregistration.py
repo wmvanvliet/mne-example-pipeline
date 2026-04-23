@@ -15,29 +15,32 @@ from config import fname
 # Handle command line arguments
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("-sub", required=True, type=int, help="The subject to process")
+parser.add_argument("-ses", required=True, type=int, help="The session to process")
 args = parser.parse_args()
 
 subject = args.sub
+session = args.ses
 # Convert the number into the corresponding FreeSurfer subject: 1 -> sub-01
 freesurfer_subject = f"sub-{subject:02d}"
 
 ## Coregistration
 gui = mne.gui.coregistration(
     subject=freesurfer_subject,
-    inst=fname.raw(subject=subject, session=1, task="audvis", run=1),
+    inst=fname.raw(subject=subject, session=session, task="audvis", run=1, proc="raw"),
+    block=True,
 )
 
-mne.write_trans(fname.trans(gui.trans
+mne.write_trans(fname.trans(subject=subject, session=session), gui.coreg.trans)
 
 # ruff: disable[E501]
 
 # 1. Load digitalization source (head shape source) from any tsss file
-# 2. Edit Fiducaials (left side panel)
+# 2. Edit Fiducials (left side panel)
 # 3. Save fiducials (default)
 # 4. Fit fiducials
 # 5. Fit ICP (head shape)
 # 6. Omit outliers and fit ICP again
-# 7. When happy with co-registation, save into the forward folder (sub-01_ses-01_coreg-transfile.fif)
+# 7. When happy with co-registation, save into the processed data folder (sub-01/sub-01_ses-01_trans.fif)
 # 8. Run separately for each HPI digitalization (ses-01, ses-02)
 
 

@@ -45,7 +45,7 @@ sessions = [1, 2]
 # "Runs" are blocks of trials, run during the same session. For example, all the trials
 # before the participant took a break could be a "run". "Tasks" are different
 # experimental paradigms. We often have a different number of runs per task.
-tasks = ["audvis", "emptyroom"]
+tasks = ["audvis"]
 runs_per_task = {
     "audvis": [1, 2],
     "emptyroom": [1],
@@ -54,10 +54,10 @@ runs_per_task = {
 # Events and their trigger-codes.
 # "description of the event": trigger-code
 event_id = {
-    "visual/left": 1,
-    "visual/right": 2,
-    "auditory/left": 3,
-    "auditory/right": 4,
+    "auditory/left": 1,
+    "auditory/right": 2,
+    "visual/left": 3,
+    "visual/right": 4,
     "smiley": 5,
     "buttonpress": 32,
 }
@@ -89,6 +89,7 @@ bad_channels = pd.DataFrame(bad_channels).explode("channels")
 # Common parameters used in multiple analysis scripts.
 ########################################################################################
 proc = "tsss"  # Set to `proc = "raw"` to disable maxfilter TSSS
+use_megin_maxfilter = True  # whether to use the official MegIn program or MNE-Python
 
 # Bandpass filter to apply.
 bandpass = (0.05, 40)
@@ -157,18 +158,18 @@ fname.add("calibration", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/su
 fname.add("crosstalk", "{bids_path}/sub-{subject:02d}/ses-{session:02d}/meg/sub-{subject:02d}_ses-{session:02d}_acq-crosstalk_meg.fif")
 
 # Files produced by Maxfilter.
-fname.add("pos", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_movecomp.pos", mkdir=True)
+fname.add("pos", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_movecomp.pos", mkdir=True)
 
 # Sensor-level files
 fname.add("epochs", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_epo.fif", mkdir=True)
 fname.add("evokeds", "{processed_path}/evokeds/sub-{subject:02d}_ses-{session:02d}_task-{task}_ave.fif", mkdir=True)
 
 # Artefact removal
-fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run}_ica.fif", mkdir=True)
+fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_ica.fif", mkdir=True)
 
 # Coregistration files (WIP)
 fname.add("fid", "{subjects_dir}/sub-{subject:02d}/bem/sub-{subject:02d}_fiducials.fif", mkdir=True)
-fname.add("trans", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_trans.fif", mkdir=True)
+fname.add("trans", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_trans.fif", mkdir=True)
 
 # Head model
 fname.add("src", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_spacing-{spacing}-src.fif", mkdir=True)
@@ -176,12 +177,14 @@ fname.add("bem_sol", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_bem-s
 fname.add("fwd", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_spacing-{spacing}-fwd.fif", mkdir=True)
 
 # Inverse solution
-fname.add("noise_cov", "{processed_path}/sub-{subject:02d}_ses-{session:02d}_task-{task}_cov.fif", mkdir=True)
+fname.add("noise_cov", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_cov.fif", mkdir=True)
 fname.add("inv", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}-{spacing}-inv.fif", mkdir=True)
 
 # Source estimates
 fname.add("stc", "{processed_path}/stcs/sub-{subject:02d}_ses-{session:02d}_task-{task}_cond-{condition}", mkdir=True)
 fname.add("stc_hemi", "{processed_path}/stcs/sub-{subject:02d}_ses-{session:02d}_task-{task}_cond-{condition}-{hemi}.stc", mkdir=True)
+fname.add("stc_morphed", "{processed_path}/stcs/sub-{subject:02d}_ses-{session:02d}_task-{task}_cond-{condition}_morphed", mkdir=True)
+fname.add("stc_morphed_hemi", "{processed_path}/stcs/sub-{subject:02d}_ses-{session:02d}_task-{task}_cond-{condition}_morphed-{hemi}.stc", mkdir=True)
 
 # Grand-average files
 fname.add("ga_evokeds", "{processed_path}/evokeds/GA_ses-{session:02d}_task-{task}_ave.fif", mkdir=True)

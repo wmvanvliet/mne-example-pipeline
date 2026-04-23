@@ -43,7 +43,7 @@ for run in config.runs_per_task[task]:
     )
 
     # Clean the data. First by bandpass filtering, then by applying the ICA to it.
-    raw.filter(config.bandpass)
+    raw.filter(*config.bandpass)
     ica = mne.preprocessing.read_ica(
         fname.ica(subject=subject, session=session, task=task, run=run)
     )

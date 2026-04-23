@@ -2,6 +2,8 @@
 Convert the original data to the BIDS format.
 """
 
+import shutil
+
 import mne
 import mne_bids
 
@@ -24,12 +26,6 @@ for subject in config.subjects:
             )
             events = mne.find_events(raw, min_duration=0.002)
 
-            # Read empty room recording. We don't do anything with it in the example
-            # pipeline, but since we have it, we should store it in the BIDS folder.
-            empty_room = mne.io.read_raw(
-                fname.orig_empty_room(subject=subject, session=session), preload=False
-            )
-
             # In BIDS filenames, it is common to add leading zeros to `subject`,
             # `session`, and `run`. So instead of 1, we use "01".
             # This conversion is done below using Python's "f-strings" functionality.
@@ -48,13 +44,23 @@ for subject in config.subjects:
                 bids_path,
                 events=events,
                 event_id=config.event_id,
-                empty_room=empty_room,
                 overwrite=True,
             )
 
             # Write the fine calibration and crosstalk information of the scanner.
-            mne_bids.write_meg_calibration(fname.orig_calibration, bids_path)
-            mne_bids.write_meg_crosstalk(fname.orig_crosstalk, bids_path)
+            # Workaround for bug https://github.com/mne-tools/mne-bids/issues/1575
+            shutil.copyfile(
+                fname.orig_calibration,
+                fname.calibration(subject=subject, session=session),
+            )
+            shutil.copyfile(
+                fname.orig_crosstalk,
+                fname.crosstalk(subject=subject, session=session),
+            )
+
+            # When the issue is fixed, the above becomes:
+            # mne_bids.write_meg_calibration(fname.orig_calibration, bids_path)
+            # mne_bids.write_meg_crosstalk(fname.orig_crosstalk, bids_path)
 
 # Convert anatomical MRIs to BIDS.
 for subject in config.subjects:

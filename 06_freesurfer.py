@@ -10,9 +10,10 @@ source /work/modules/Ubuntu/20.04/amd64/t314/freesurfer/7.3.2/FreeSurferEnv.sh
 """
 
 import argparse
+import os
 import subprocess
 
-import mne
+from mne.bem import make_watershed_bem
 
 from config import fname
 
@@ -26,6 +27,9 @@ subject = args.sub
 freesurfer_subject = f"sub-{subject:02d}"
 print("Running FreeSurfer on subject:", subject)
 
+# Make sure the SUBJECTS_DIR exists.
+os.makedirs(fname.subjects_dir, exist_ok=True)
+
 # fmt: off
 subprocess.run(
     args = [
@@ -38,16 +42,16 @@ subprocess.run(
 )
 # fmt: on
 
-# Set up MRI-images for analysis with MNE-python
-mne.bem.make_watershed_bem(freesurfer_subject, overwrite=True)
+# Set up MRI-images for analysis with MNE-python>
+make_watershed_bem(freesurfer_subject, overwrite=True)
 
-# High-resolution surfaces
+# Produce high-resolution head surface.
 # fmt: off
 subprocess.run(
     args=[
         "mne", "make_scalp_surfaces",
         "-s", freesurfer_subject,
-        "-sd", fname.subjects_dir,
+        "-d", fname.subjects_dir,
         "--overwrite",
         "--force"
     ]

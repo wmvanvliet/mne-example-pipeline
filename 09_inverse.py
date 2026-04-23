@@ -15,7 +15,7 @@ parser.add_argument("-ses", required=True, type=int, help="The session to proces
 parser.add_argument("-task", default="audvis", help="The task to process")
 args = parser.parse_args()
 
-subject = args.subject
+subject = args.sub
 session = args.ses
 task = args.task
 
@@ -31,18 +31,23 @@ noise_cov = mne.read_cov(fname.noise_cov(subject=subject, session=session, task=
 # Read the forward model, one model has been created for each session
 fwd = mne.read_forward_solution(fname.fwd(subject=subject, session=session, task=task))
 
+# Read the info
+info = mne.io.read_info(fname.epochs(subject=subject, session=session, task=task))
+
 # Compute inverse operator.
 inverse_operator = mne.minimum_norm.make_inverse_operator(
-    info=noise_cov.info, forward=fwd, noise_cov=noise_cov, loose=0.3, depth=0.8
+    info=info, forward=fwd, noise_cov=noise_cov, loose=0.3, depth=0.8
 )
 mne.minimum_norm.write_inverse_operator(
-    fname.inv(subject=subject, session=session, task=task), inverse_operator
+    fname.inv(subject=subject, session=session, task=task),
+    inverse_operator,
+    overwrite=True,
 )
 
 # Calculate morph matrix from the subject-specific brain to a template (fsaverage).
 morph = mne.compute_source_morph(
     fwd["src"],
-    subject_from=subject,
+    subject_from=f"sub-{subject:02d}",
     subject_to="fsaverage",
     subjects_dir=fname.subjects_dir,
     spacing=5,
@@ -58,7 +63,7 @@ method = "dSPM"
 for condition in config.conditions.keys():
     print("Computing stc for condition:", condition)
     evoked = mne.read_evokeds(
-        fname.evokeds(subject=subject, ses=session, task=task),
+        fname.evokeds(subject=subject, session=session, task=task),
         baseline=config.baseline,
         condition=condition,
     )
