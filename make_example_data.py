@@ -10,11 +10,23 @@ simulate the situation in which we have multiple subjects, with multiple session
 and multiple runs within a session.
 """
 
+import argparse
 import os
 import shutil
 
 import mne
 import mne_bids
+
+# Handle command-line arguments
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument(
+    "-d",
+    "--data_path",
+    required=False,
+    default="./data/orig",
+    help="The folder you want to data to be stored in.",
+)
+args = parser.parse_args()
 
 # Don't print all of the standard MNE-Python output, just warnings and errors.
 mne.set_log_level("WARNING")
@@ -22,12 +34,9 @@ mne.set_log_level("WARNING")
 # Where to store the MNE-sample data.
 sample_data_path = None  # use the default chosen by MNE-Python
 
-# Where to store the testing data we produce in this script.
-target_data_path = "./data/orig"
-
 # Make the data folders we're doing to need.
-os.makedirs(f"{target_data_path}/meg", exist_ok=True)
-os.makedirs(f"{target_data_path}/mri", exist_ok=True)
+os.makedirs(f"{args.data_path}/meg", exist_ok=True)
+os.makedirs(f"{args.data_path}/mri", exist_ok=True)
 
 # Downloads the data (1.5GB) and sets `sample_data_path` to the path the data was
 # downloaded to.
@@ -47,7 +56,7 @@ for subj_num, subj in enumerate(subjects, 1):
     # Copy anatomical MRI.
     shutil.copyfile(
         f"{sample_data_path}/subjects/sample/mri/orig/001.mgz",
-        f"{target_data_path}/mri/{subj}.mgz",
+        f"{args.data_path}/mri/{subj}.mgz",
     )
 
     time_window = (0, 30)  # in seconds
@@ -56,20 +65,20 @@ for subj_num, subj in enumerate(subjects, 1):
         for run in runs:
             raw_snippet = raw.copy().crop(*time_window)
             raw_snippet.save(
-                f"{target_data_path}/meg/{subj}_{sess}_{run}_raw.fif", overwrite=True
+                f"{args.data_path}/meg/{subj}_{sess}_{run}_raw.fif", overwrite=True
             )
             time_window = (time_window[0] + 30, time_window[1] + 30)
 
 # Scanner-specific calibration files. Pretend the data was recorded at BioMag.
 shutil.copyfile(
     f"{sample_data_path}/SSS/sss_cal_mgh.dat",
-    f"{target_data_path}/sss_cal_biomag_triux.dat",
+    f"{args.data_path}/sss_cal_biomag_triux.dat",
 )
 shutil.copyfile(
     f"{sample_data_path}/SSS/ct_sparse_mgh.fif",
-    f"{target_data_path}/ct_sparse_biomag_triux.fif",
+    f"{args.data_path}/ct_sparse_biomag_triux.fif",
 )
 
 # Print a listing of the created files.
 print("Created the following files:")
-mne_bids.print_dir_tree(target_data_path)
+mne_bids.print_dir_tree(args.data_path)
