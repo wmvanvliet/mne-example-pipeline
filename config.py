@@ -88,7 +88,6 @@ bad_channels = pd.DataFrame(bad_channels).explode("channels")
 # Common parameters used in multiple analysis scripts.
 ########################################################################################
 proc = "tsss"  # Set to `proc = "raw"` to disable maxfilter TSSS
-use_megin_maxfilter = True  # whether to use the official MegIn program or MNE-Python
 
 # Bandpass filter to apply.
 bandpass = (0.05, 40)
