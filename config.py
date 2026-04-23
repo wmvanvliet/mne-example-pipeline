@@ -45,7 +45,7 @@ sessions = [1, 2]
 # "Runs" are blocks of trials, run during the same session. For example, all the trials
 # before the participant took a break could be a "run". "Tasks" are different
 # experimental paradigms. We often have a different number of runs per task.
-tasks = ["audvis"]
+tasks = ["audvis", "emptyroom"]
 runs_per_task = {
     "audvis": [1, 2],
     "emptyroom": [1],
