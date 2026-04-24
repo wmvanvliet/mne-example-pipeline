@@ -2,13 +2,19 @@
 
 A standard pipeline for source localization of evoked responses using MNE. This is meant as a jumping-off point for your own data analysis pipeline.
 
+## Other versions of this pipeline
+
+There are multiple branches in this repository. You are currently on the `advanced` branch:
+- `minimal` The most basic version of the pipeline, handling one data file per subject.
+- **`advanced`** A more powerful version of the pipeline, handling multiple subjects, sessions and runs. Adds more bells and whistles to the code to make it portable and reproducible. 
+- `expert` An even more powerful version, adding "empty room" recordings, a build system, and HTML reports.
+
 
 ## Getting started
 
 #### 1. Have access to a scientific Python environment
 
-To run this analysis pipeline, you need access to a Python enviroment with has the
-MNE-Python package installed.
+To run this analysis pipeline, you need access to a Python environment with has the MNE-Python package installed.
 
 - On Triton, you can load one with: `module load neuroimaging-env`
 - On Aalto workstations, you can load one with:
