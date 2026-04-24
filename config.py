@@ -6,26 +6,60 @@ Config file
 Configuration parameters for the study.
 """
 
+import getpass
 import os
+import pathlib
+from socket import getfqdn
 
+import mne_bids
 import pandas as pd
 from filename_templates import FileNames
 
 ########################################################################################
-# Data folders. SET THESE TO MATCH YOUR OWN SYSTEM.
+# System setup. SET THIS TO MATCH YOUR OWN SYSTEM.
 ########################################################################################
 
-# Folder containing the original data recorded during the project.
-orig_data_path = "./data/orig"
+user = getpass.getuser()  # Username of the user running the scripts
+host = getfqdn()  # Hostname of the machine running the scripts
 
-# Folder containing the BIDS version of the data.
-bids_path = "./data/bids"
+# You want to add your machine to this list.
+# orig_data_path - Folder containing the original data recorded during the project.
+# bids_path - Folder containing the BIDS version of the data.
+# processed_data_path - Folder to write the processed MEG data to.
+# subject_dir - Folder for the MRIs that have been processed with FreeSurfer
+# n_jobs - number of CPU cores to use
+if host == "deepthought1" and user == "vanvlm1":
+    # Marijn's GPU workstation
+    orig_data_path = "./data/orig"
+    bids_path = "./data/bids"
+    processed_data_path = "./data/processed"
+    subjects_dir = "./data/bids/derivatives/freesurfer"
+    n_jobs = 32
+    use_megin_maxfilter = False  # not available on this system
+elif host == "deepthought1" and user == "vanvlm1":
+    # Marijn's laptop
+    raw_data_dir = "./data"
+    orig_data_path = "./data/orig"
+    bids_path = "./data/bids"
+    processed_data_path = "./data/processed"
+    subjects_dir = "./data/bids/derivatives/freesurfer"
+    n_jobs = 14
+    use_megin_maxfilter = False  # not available on this system
+elif host == "d22-0025.org.aalto.fi" and user == "vanvlm1":
+    # Marijn's Aalto workstation
+    raw_data_dir = "./data"
+    orig_data_path = "./data/orig"
+    bids_path = "./data/bids"
+    processed_data_path = "./data/processed"
+    subjects_dir = "./data/bids/derivatives/freesurfer"
+    n_jobs = 12
+    use_megin_maxfilter = True  # maxfilter™ available!
+else:
+    raise ValueError(f"Please add your system to config.py ({user=} {host=}).")
 
-# Folder to write the processed MEG data to.
-processed_data_path = "./data/processed"
+# For numpy to use the right amount of cores
+os.environ["OMP_NUM_THREADS"] = str(n_jobs)
 
-# Folder for the MRIs that have been processed with FreeSurfer (SUBJECTS_DIR).
-subjects_dir = "./data/bids/derivatives/freesurfer"
 
 ########################################################################################
 # Experiment design: subjects, session, runs, tasks, event codes, etc.
@@ -45,9 +79,10 @@ sessions = [1, 2]
 # "Runs" are blocks of trials, run during the same session. For example, all the trials
 # before the participant took a break could be a "run". "Tasks" are different
 # experimental paradigms. We often have a different number of runs per task.
-tasks = ["audvis"]
+tasks = ["audvis", "emptyroom"]
 runs_per_task = {
     "audvis": [1, 2],
+    "emptyroom": [1],
 }
 
 # Events and their trigger-codes.
@@ -87,7 +122,8 @@ bad_channels = pd.DataFrame(bad_channels).explode("channels")
 ########################################################################################
 # Common parameters used in multiple analysis scripts.
 ########################################################################################
-proc = "tsss"  # Set to `proc = "raw"` to disable maxfilter tSSS
+enable_maxfilter = True
+enable_projections = True
 
 # Bandpass filter to apply.
 bandpass = (0.05, 40)
@@ -123,6 +159,7 @@ spacing = "ico4"
 #    See: https://docs.python.org/3/library/string.html#format-examples
 ########################################################################################
 
+
 fname = FileNames()
 # fmt: off
 # ruff: disable[E501]
@@ -140,6 +177,7 @@ fname.add("task", "audvis")  # the task is always "audvis" this example experime
 
 # Original raw data, before BIDS conversion. THESE WILL BE DIFFERENT FOR YOUR OWN STUDY!
 fname.add("orig_meg", "{orig_path}/meg/sub{subject:02d}_session{session}_run{run}_raw.fif")
+fname.add("orig_emptyroom", "{orig_path}/meg/sub{subject:02d}_session{session}_emptyroom_raw.fif")
 fname.add("orig_mri", "{orig_path}/mri/sub{subject:02d}.mgz")
 # Scanner-specific calibration files.
 # These depends on whether you recorded the data at BioMag, Aalto, or somewhere else.
@@ -165,10 +203,11 @@ fname.add("evokeds", "{processed_path}/evokeds/sub-{subject:02d}_ses-{session:02
 fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_ica.fif", mkdir=True)
 
 # Coregistration files (WIP)
-fname.add("fid", "{subjects_dir}/sub-{subject:02d}/bem/sub-{subject:02d}_fiducials.fif", mkdir=True)
+fname.add("fid", "{subjects_dir}/sub-{subject:02d}/bem/sub-{subject:02d}-fiducials.fif", mkdir=True)
 fname.add("trans", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_trans.fif", mkdir=True)
 
 # Head model
+fname.add("head_surf", "{bids_path}/derivatives/freesurfer/sub-{subject:02d}/bem/sub-{subject:02d}-head-dense.fif")
 fname.add("src", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_spacing-{spacing}-src.fif", mkdir=True)
 fname.add("bem_sol", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_bem-sol.fif", mkdir=True)
 fname.add("fwd", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_spacing-{spacing}-fwd.fif", mkdir=True)

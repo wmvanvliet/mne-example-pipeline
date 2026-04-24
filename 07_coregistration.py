@@ -24,13 +24,24 @@ session = args.ses
 freesurfer_subject = f"sub-{subject:02d}"
 
 ## Coregistration
-gui = mne.gui.coregistration(
-    subject=freesurfer_subject,
-    inst=fname.raw(subject=subject, session=session, task="audvis", run=1, proc="raw"),
-    block=True,
+info = mne.io.read_info(
+    fname.raw(subject=subject, session=session, task="audvis", run=1, proc="raw")
 )
 
-mne.write_trans(fname.trans(subject=subject, session=session), gui.coreg.trans)
+if fname.fid(subject=subject).exists():
+    # MRI fiducials already set, perform co-registration automatically.
+    coreg = mne.coreg.Coregistration(info, subject=freesurfer_subject)
+else:
+    # Drop the user in a GUI to perform manual co-registration.
+    gui = mne.gui.coregistration(
+        subject=freesurfer_subject,
+        block=True,
+    )
+    coreg = gui.coreg
+
+mne.write_trans(
+    fname.trans(subject=subject, session=session), coreg.trans, overwrite=True
+)
 
 # ruff: disable[E501]
 

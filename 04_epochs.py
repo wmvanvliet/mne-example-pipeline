@@ -26,6 +26,11 @@ print("Cut epochs for subject:", subject)
 print("Session:", session)
 print("Task:", task)
 
+if config.enable_maxfilter:
+    proc = "tsss"
+else:
+    proc = "raw"
+
 raws = list()
 for run in config.runs_per_task[task]:
     # Read the tSSS-filtered data and clean it with the ICA computed during the previous
@@ -37,7 +42,7 @@ for run in config.runs_per_task[task]:
             session=session,
             task=task,
             run=run,
-            proc=config.proc,
+            proc=proc,
         ),
         preload=True,
     )

@@ -14,6 +14,8 @@ import argparse
 import subprocess
 import sys
 
+import mne
+
 import config
 from config import fname
 
@@ -25,18 +27,14 @@ parser.add_argument("-task", default="audvis", help="The task to process")
 parser.add_argument("-run", required=True, type=int, help="The run to process")
 args = parser.parse_args()
 
-subject = args.sub
-session = args.ses
-task = args.task
-run = args.run
-
+subject, session, task, run = args.sub, args.ses, args.task, args.run
 print("Run tSSS on subject:", subject)
 print("Session:", session)
 print("Task:", task)
 print("Run:", run)
 
-if config.proc == "raw":
-    print("tSSS processing disabled. Nothing to be done.")
+if not config.enable_maxfilter:
+    print("Maxfilter disabled. Nothing to be done.")
     sys.exit(0)
 
 # Use the manually pre-selected bad channels in the config file.
@@ -45,10 +43,10 @@ current_bads = config.bad_channels.query(
     f"subject=={subject} and session=={session} and task=='{task}' and run=={run}"
 ).channels.tolist()
 
-# Args to be used in maxfilter
-# fmt: off
-# ruff: disable[E501]
-subprocess.run(
+if config.use_megin_maxfilter:
+    # Args to be used in maxfilter
+    # fmt: off
+    # ruff: disable[E501]
     args = [
         "maxfilter",
 
@@ -58,21 +56,10 @@ subprocess.run(
         # Output file.
         "-o", fname.raw(subject=subject, session=session, task=task, run=run, proc="tsss"),
 
-        # Virtually move the head position to the location in this file.
-        "-trans",
-        fname.raw(subject=subject, session=1, task=task, run=1, proc="raw"),
-
-        # Write the continuous head position to a file.
-        "-hp", fname.pos(subject=subject, session=session, task=task, run=run),
-
         # Uncomment this to enable continuous head movement compensation.
         # "-movecomp", "inter",
 
-        "-st", "60",
         "-v",
-        "-hpicons",
-        "-origin", "fit",
-        "-frame", "head",
         "-in", "8",
         "-out", "3",
 
@@ -84,6 +71,65 @@ subprocess.run(
         "-autobad", "off",  # alternatively: "-autobad", "on"
         "-bad",  # value will be the `current_bads` below
     ] + current_bads
-)
+
+    if task != "emptyroom":
+        args.extend([
+            # Virtually move the head position to the location in this file.
+            "-trans",
+            fname.raw(subject=subject, session=1, task=task, run=1, proc="raw"),
+
+            # Write the continuous head position to a file.
+            "-hp", fname.pos(subject=subject, session=session, task=task, run=run),
+
+            "-frame", "head",
+            "-st", "60",
+            "-hpicons",
+            "-origin", "fit",
+
+        ])
+
+    subprocess.run(args)
+else:
+    # Use MNE-Python's maxfilter implementation.
+    raw = mne.io.read_raw(
+        fname.raw(subject=subject, session=session, task=task, run=run, proc="raw")
+    )
+
+    # Set bad channels so maxfilter can ignore them.
+    raw.info["bads"] = current_bads
+
+    if task == "emptyroom":
+        coord_frame = "meg"
+        st_duration = None
+        destination = None
+        head_pos = None
+    else:
+        coord_frame = "head"
+        st_duration = min(60, int(raw.duration))
+        destination = fname.raw(
+            subject=subject, session=1, task=task, run=1, proc="raw"
+        )
+        # Compute head position from the cHPI channels.
+        try:
+            chpi_amps = mne.chpi.compute_chpi_amplitudes(raw)
+            chpi_locs = mne.chpi.compute_chpi_locs(raw.info, chpi_amps)
+            head_pos = mne.chpi.compute_head_pos(raw.info, chpi_locs)
+        except ValueError:
+            head_pos = None
+
+    # Perform the maxfilter.
+    raw_tsss = mne.preprocessing.maxwell_filter(
+        raw,
+        coord_frame=coord_frame,
+        head_pos=head_pos,
+        destination=destination,
+        st_duration=st_duration,
+        calibration=fname.calibration(subject=subject, session=session),
+        cross_talk=fname.crosstalk(subject=subject, session=session),
+    )
+    raw_tsss.save(
+        fname.raw(subject=subject, session=session, task=task, run=run, proc="tsss"),
+        overwrite=True,
+    )
 # fmt: on
 # ruff: enable[E501]

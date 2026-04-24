@@ -29,8 +29,12 @@ print("Session:", session)
 print("Task:", task)
 print("Run:", run)
 
+if config.enable_maxfilter:
+    proc = "tsss"
+else:
+    proc = "raw"
 raw = mne.io.read_raw(
-    fname.raw(subject=subject, session=session, task=task, run=run, proc=config.proc),
+    fname.raw(subject=subject, session=session, task=task, run=run, proc=proc),
     preload=True,
 )
 
@@ -42,7 +46,7 @@ raw.filter(1, config.bandpass[1])
 
 # Obtain the mixing and unmixing matrices of the Independant Component Analysis.
 ica = mne.preprocessing.ICA(
-    n_components=0.95 if config.proc == "tsss" else 0.9,
+    n_components=0.95 if config.enable_maxfilter else 0.9,
     method="picard",
     fit_params=dict(extended=True),
     random_state=0,  # this is important to produce the exact same solution every time
@@ -58,7 +62,7 @@ eog_bads, eog_scores = ica.find_bads_eog(
 # Do the same with the ECG channels. However, this example data does not have an ECG
 # channel. We can create a "virtual" one, but this has to be done on the non-tSSS data,
 # as the tSSS algorithm will have removed much of the heartbeat.
-if config.proc == "raw":
+if not config.enable_maxfilter:
     # tSSS processing was disabled already.
     raw_non_tsss = raw
 else:
