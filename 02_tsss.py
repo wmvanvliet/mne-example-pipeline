@@ -36,7 +36,7 @@ print("Task:", task)
 print("Run:", run)
 
 if config.proc == "raw":
-    print("TSSS processing disabled. Nothing to be done.")
+    print("tSSS processing disabled. Nothing to be done.")
     sys.exit(0)
 
 # Use the manually pre-selected bad channels in the config file.

@@ -28,7 +28,7 @@ print("Task:", task)
 
 raws = list()
 for run in config.runs_per_task[task]:
-    # Read the TSSS-filtered data and clean it with the ICA computed during the previous
+    # Read the tSSS-filtered data and clean it with the ICA computed during the previous
     # step.
     print("Processing run: ", run)
     raw = mne.io.read_raw(

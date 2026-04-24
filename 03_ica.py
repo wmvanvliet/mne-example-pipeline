@@ -56,18 +56,18 @@ eog_bads, eog_scores = ica.find_bads_eog(
 )
 
 # Do the same with the ECG channels. However, this example data does not have an ECG
-# channel. We can create a "virtual" one, but this has to be done on the non-TSSS data,
-# as the TSSS algorithm will have removed much of the heartbeat.
+# channel. We can create a "virtual" one, but this has to be done on the non-tSSS data,
+# as the tSSS algorithm will have removed much of the heartbeat.
 if config.proc == "raw":
-    # TSSS processing was disabled already.
+    # tSSS processing was disabled already.
     raw_non_tsss = raw
 else:
-    # Read non-TSSS processed data.
+    # Read non-tSSS processed data.
     raw_non_tsss = mne.io.read_raw(
         fname.raw(subject=subject, session=session, task=task, run=run, proc="raw")
     )
-# Find the onsets of the heartbeats on the non-TSSS data, then cut epochs around them
-# on the TSSS data.
+# Find the onsets of the heartbeats on the non-tSSS data, then cut epochs around them
+# on the tSSS data.
 ecg_events = mne.preprocessing.find_ecg_events(raw_non_tsss)[0]
 ecg_epochs = mne.Epochs(raw, ecg_events, tmin=-0.2, tmax=0.5, preload=True)
 ecg_bads, ecg_scores = ica.find_bads_ecg(

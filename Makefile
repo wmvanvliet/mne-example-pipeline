@@ -5,7 +5,7 @@ help:
 	@echo "  source      all processing steps in source space"
 	@echo "Or use one of these to run individual steps:"
 	@echo "  bids        convert the original data to BIDS format"
-	@echo "  tsss        run maxfilter on the data to perform TSSS filtering"
+	@echo "  tsss        run maxfilter on the data to perform tSSS filtering"
 	@echo "  ica         use ICA to remove eye blinks and heart beat"
 	@echo "  epochs      create epochs and evoked responses"
 	@echo "  noise_cov   compute the noise covariance"
