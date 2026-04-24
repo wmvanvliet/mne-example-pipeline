@@ -16,6 +16,7 @@ subject = "sub01"
 gui = mne.gui.coregistration(
     subject=subject,
     inst=f"./data/orig/meg/{subject}_raw.fif",
+    subjects_dir="./data/freesurfer",
     block=True,
 )
 

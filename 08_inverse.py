@@ -12,7 +12,7 @@ for subject in ["sub01", "sub02"]:
     fwd = mne.read_forward_solution(f"./data/processed/{subject}/{subject}_fwd.fif")
 
     # Read the info
-    info = mne.io.read_info(f"./data/processed/{subject}/{subject}_cov.fif")
+    info = mne.io.read_info(f"./data/processed/{subject}/{subject}_epo.fif")
 
     # Compute inverse operator.
     inverse_operator = mne.minimum_norm.make_inverse_operator(
