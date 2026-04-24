@@ -31,7 +31,7 @@ for subject in ["sub01", "sub02"]:
     )
 
     # Save epochs.
-    epochs.save("./data/processed/{subject}/{subject}_epo.fif", overwrite=True)
+    epochs.save(f"./data/processed/{subject}/{subject}_epo.fif", overwrite=True)
 
     # Calculate and save evoked responses for each experimental condition.
     evokeds = [
@@ -43,5 +43,5 @@ for subject in ["sub01", "sub02"]:
 
     # Save evoked responses
     mne.write_evokeds(
-        "./data/processed/{subject}/{subject}_ave.fif", evokeds, overwrite=True
+        f"./data/processed/{subject}/{subject}_ave.fif", evokeds, overwrite=True
     )

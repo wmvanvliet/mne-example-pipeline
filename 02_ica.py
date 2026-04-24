@@ -9,7 +9,7 @@ import mne
 
 for subject in ["sub01", "sub02"]:
     raw = mne.io.read_raw(
-        "./data/processed/{subject}/{subject}_tsss_raw.fif", preload=True
+        f"./data/processed/{subject}/{subject}_tsss_raw.fif", preload=True
     )
 
     # First bandpass filter the data with a lower bound of 1 Hz. This ensures the data
@@ -34,7 +34,7 @@ for subject in ["sub01", "sub02"]:
     # Do the same with the ECG channels. However, this example data does not have an ECG
     # channel. We can create a "virtual" one, but this has to be done on the non-TSSS
     # data, as the TSSS algorithm will have removed much of the heartbeat.
-    raw_non_tsss = mne.io.read_raw("./data/orig/{subject}_raw.fif")
+    raw_non_tsss = mne.io.read_raw(f"./data/orig/meg/{subject}_raw.fif")
     # Find the onsets of the heartbeats on the non-TSSS data, then cut epochs around
     # them on the TSSS data.
     ecg_events = mne.preprocessing.find_ecg_events(raw_non_tsss)[0]

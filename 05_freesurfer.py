@@ -14,6 +14,9 @@ import subprocess
 
 import mne.bem
 
+# Where to store the FreeSurfer output
+os.environ["SUBJECTS_DIR"] = "./data/freesurfer"
+
 # Make sure the SUBJECTS_DIR exists.
 os.makedirs("./data/freesurfer", exist_ok=True)
 
@@ -25,8 +28,7 @@ for subject in ["sub01", "sub02"]:
         args = [
             "recon-all", "-all",
             "-s", subject,
-            "-sd", "./data/freesurfer",  # SUBJECTS_DIR
-            "-i", "./data/orig/mri/{subject}.mgz",
+            "-i", f"./data/orig/mri/{subject}.mgz",
         ]
     )
     # fmt: on
@@ -40,7 +42,6 @@ for subject in ["sub01", "sub02"]:
         args=[
             "mne", "make_scalp_surfaces",
             "-s", subject,
-            "-d", "./data/freesurfer",  # SUBJECTS_DIR
             "--overwrite",
             "--force"
         ]
