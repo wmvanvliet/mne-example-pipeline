@@ -1,13 +1,13 @@
-# Standard MNE source estimation pipeline
+# Expert MNE source estimation pipeline
 
-A standard pipeline for source localization of evoked responses using MNE. This is meant as a jumping-off point for your own data analysis pipeline.
+A standard pipeline for source localization of evoked responses using MNE with a lot of bells and whistles. This is meant as a jumping-off point for your own data analysis pipeline.
 
 ## Other versions of this pipeline
 
-There are multiple branches in this repository. You are currently on the `advanced` branch:
+There are multiple branches in this repository. You are currently on the `expert` branch:
 - `minimal` The most basic version of the pipeline, handling one data file per subject.
-- **`advanced`** A more powerful version of the pipeline, handling multiple subjects, sessions and runs. Adds more bells and whistles to the code to make it portable and reproducible. 
-- `expert` An even more powerful version, adding "empty room" recordings, a build system, and HTML reports.
+- `advanced` A more powerful version of the pipeline, handling multiple subjects, sessions and runs. Adds more bells and whistles to the code to make it portable and reproducible. 
+- **`expert`** An even more powerful version, adding "empty room" recordings, a build system, and HTML reports.
 
 
 ## Getting started
@@ -39,17 +39,17 @@ Edit the `config.py` file to configure the location of the data folders. For exa
 ## Running the analysis
 
 #### 1. Run the sensor level analysis
-You can perform the first steps of the analysis pipeline, that deal with sensor-level data, by executing: `make sensor`.
+You can perform the first steps of the analysis pipeline, that deal with sensor-level data, by executing: `doit sensor`.
 
 #### 2. Perform the manual steps required for source level analysis
 Before we can move on to source level analysis, there are some manual steps to be performed.
 
-First, FreeSurfer needs to be run, which takes a few hours per subject. This is why this step is not performed automatically. You can execute it by running `make freesurfer`.
+First, FreeSurfer needs to be run, which takes a few hours per subject. This is why this step is not performed automatically. You can execute it by running `doit freesurfer`.
 
 Second, the FreeSurfer MRI surfaces need to be co-registered with the MEG data. This is best done in an interactive python environment (an IPython terminal) by running `%run 07_coregistration.py -sub <subject-number>`. It will open a GUI you can use for co-registration and save the resulting transformation when you close the GUI.
 
 #### 3. Run the source level analysis
-You can now perform the final steps of the analysis pipeline, that deal with source-level data, by executing: `make source`.
+You can now perform the final steps of the analysis pipeline, that deal with source-level data, by executing: `doit source`.
 
 
 ## Building on this example pipeline
