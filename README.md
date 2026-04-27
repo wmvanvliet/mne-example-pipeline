@@ -7,7 +7,7 @@ A standard pipeline for source localization of evoked responses using MNE. This 
 
 #### 1. Have access to a scientific Python environment
 
-To run this analysis pipeline, you need access to a Python enviroment with has the
+To run this analysis pipeline, you need access to a Python environment with has the
 MNE-Python package installed.
 
 - On Triton, you can load one with: `module load neuroimaging-env`
