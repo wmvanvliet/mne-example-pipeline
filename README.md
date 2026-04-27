@@ -46,7 +46,7 @@ Before we can move on to source level analysis, there are some manual steps to b
 
 First, FreeSurfer needs to be run, which takes a few hours per subject. This is why this step is not performed automatically. You can execute it by running `doit freesurfer`.
 
-Second, the FreeSurfer MRI surfaces need to be co-registered with the MEG data. This is best done in an interactive python environment (an IPython terminal) by running `%run 07_coregistration.py -sub <subject-number>`. It will open a GUI you can use for co-registration and save the resulting transformation when you close the GUI.
+Second, the FreeSurfer MRI surfaces need to be co-registered with the MEG data. This is best done in an interactive python environment (an IPython terminal) by running `%run 07_coregistration.py -sub <subject-number> -ses <session-number>`. It will open a GUI you can use for co-registration and save the resulting transformation when you close the GUI.
 
 #### 3. Run the source level analysis
 You can now perform the final steps of the analysis pipeline, that deal with source-level data, by executing: `doit source`.
