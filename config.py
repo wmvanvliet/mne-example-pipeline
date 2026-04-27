@@ -36,7 +36,7 @@ if host == "deepthought1" and user == "vanvlm1":
     subjects_dir = "./data/bids/derivatives/freesurfer"
     n_jobs = 32
     use_megin_maxfilter = False  # not available on this system
-elif host == "deepthought1" and user == "vanvlm1":
+elif "marijn-laptop" in host and user == "vanvlm1":
     # Marijn's laptop
     raw_data_dir = "./data"
     orig_data_path = "./data/orig"
@@ -79,10 +79,9 @@ sessions = [1, 2]
 # "Runs" are blocks of trials, run during the same session. For example, all the trials
 # before the participant took a break could be a "run". "Tasks" are different
 # experimental paradigms. We often have a different number of runs per task.
-tasks = ["audvis", "emptyroom"]
+tasks = ["audvis"]
 runs_per_task = {
     "audvis": [1, 2],
-    "emptyroom": [1],
 }
 
 # Events and their trigger-codes.
