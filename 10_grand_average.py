@@ -4,9 +4,8 @@ Compute average of the power maps of morphed source estimates.
 
 from __future__ import print_function
 
-
-import numpy as np
 import mne
+import numpy as np
 
 import config
 from config import fname
@@ -48,6 +47,23 @@ for task in config.tasks:
                 overwrite=True,
             )
 
+            # Add a figure of the source estimate to the HTML report.
+            with mne.open_report(fname.ga_report) as report:
+                report.add_stc(
+                    ga_stc,
+                    subject="fsaverage",
+                    title=f"STC: ses-{session:02d} cond-{condition}",
+                    replace=True,
+                )
+
         mne.write_evokeds(
             fname.ga_evokeds(session=session, task=task), ga_evokeds, overwrite=True
         )
+
+        # Add a figure of the evokeds to the HTML report.
+        with mne.open_report(fname.ga_report) as report:
+            fig = mne.viz.plot_evoked_topo(ga_evokeds, show=False)
+            fig.set_size_inches((20, 20))
+            report.add_figure(fig, title=f"Evokeds: ses-{session:02d}", replace=True)
+
+report.save(fname.ga_report_html, open_browser=False, overwrite=True)

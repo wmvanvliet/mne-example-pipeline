@@ -4,6 +4,7 @@ import argparse
 
 import mne
 
+import config
 from config import fname
 
 # Handle command line arguments
@@ -22,7 +23,9 @@ print("Task:", task)
 
 # Get epochs
 epochs = mne.read_epochs(
-    fname.epochs(subject=subject, session=session, task=task), preload=True
+    fname.epochs(subject=subject, session=session, task=task),
+    proj=config.enable_projections,
+    preload=True,
 )
 
 # Calculate noise covariance on baseline time period
@@ -36,3 +39,13 @@ mne.write_cov(
     noise_cov,
     overwrite=True,
 )
+
+# Write figures to the HTML report
+with mne.open_report(fname.report(subject=subject)) as report:
+    report.add_covariance(
+        noise_cov,
+        info=epochs.info,
+        title=f"Noise covariance: ses-{session:02d} task-{task}",
+        replace=True,
+    )
+    report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)

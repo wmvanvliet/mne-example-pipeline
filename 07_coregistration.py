@@ -37,6 +37,7 @@ info = mne.io.read_info(
 if not args.redo and fname.fid(subject=subject).exists():
     # MRI fiducials already set, perform co-registration automatically.
     coreg = mne.coreg.Coregistration(info, subject=freesurfer_subject)
+    coreg.fit_fiducials()
 else:
     # Drop the user in a GUI to perform manual co-registration.
     gui = mne.gui.coregistration(

@@ -8,10 +8,8 @@ Configuration parameters for the study.
 
 import getpass
 import os
-import pathlib
 from socket import getfqdn
 
-import mne_bids
 import pandas as pd
 from filename_templates import FileNames
 
@@ -33,6 +31,7 @@ if host == "deepthought1" and user == "vanvlm1":
     orig_data_path = "./data/orig"
     bids_path = "./data/bids"
     processed_data_path = "./data/processed"
+    reports_data_path = "./data/reports"
     subjects_dir = "./data/bids/derivatives/freesurfer"
     n_jobs = 32
     use_megin_maxfilter = False  # not available on this system
@@ -42,6 +41,7 @@ elif "marijn-laptop" in host and user == "vanvlm1":
     orig_data_path = "./data/orig"
     bids_path = "./data/bids"
     processed_data_path = "./data/processed"
+    reports_data_path = "./data/reports"
     subjects_dir = "./data/bids/derivatives/freesurfer"
     n_jobs = 14
     use_megin_maxfilter = False  # not available on this system
@@ -51,6 +51,7 @@ elif host == "d22-0025.org.aalto.fi" and user == "vanvlm1":
     orig_data_path = "./data/orig"
     bids_path = "./data/bids"
     processed_data_path = "./data/processed"
+    reports_data_path = "./data/reports"
     subjects_dir = "./data/bids/derivatives/freesurfer"
     n_jobs = 12
     use_megin_maxfilter = True  # maxfilter™ available!
@@ -168,6 +169,7 @@ fname = FileNames()
 fname.add("orig_path", orig_data_path)
 fname.add("bids_path", bids_path, mkdir=True)
 fname.add("processed_path", processed_data_path, mkdir=True)
+fname.add("reports_path", reports_data_path, mkdir=True)
 fname.add("subjects_dir", subjects_dir, mkdir=True)
 
 # Add these so we can use them in the filenames.
@@ -176,7 +178,6 @@ fname.add("task", "audvis")  # the task is always "audvis" this example experime
 
 # Original raw data, before BIDS conversion. THESE WILL BE DIFFERENT FOR YOUR OWN STUDY!
 fname.add("orig_meg", "{orig_path}/meg/sub{subject:02d}_session{session}_run{run}_raw.fif")
-fname.add("orig_emptyroom", "{orig_path}/meg/sub{subject:02d}_session{session}_emptyroom_raw.fif")
 fname.add("orig_mri", "{orig_path}/mri/sub{subject:02d}.mgz")
 # Scanner-specific calibration files.
 # These depends on whether you recorded the data at BioMag, Aalto, or somewhere else.
@@ -199,7 +200,7 @@ fname.add("epochs", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{s
 fname.add("evokeds", "{processed_path}/evokeds/sub-{subject:02d}_ses-{session:02d}_task-{task}_ave.fif", mkdir=True)
 
 # Artefact removal
-fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_ica.fif", mkdir=True)
+fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_ica.fif", mkdir=True)
 
 # Coregistration files (WIP)
 fname.add("fid", "{subjects_dir}/sub-{subject:02d}/bem/sub-{subject:02d}-fiducials.fif", mkdir=True)
@@ -225,6 +226,12 @@ fname.add("stc_morphed_hemi", "{processed_path}/stcs/sub-{subject:02d}_ses-{sess
 fname.add("ga_evokeds", "{processed_path}/evokeds/GA_ses-{session:02d}_task-{task}_ave.fif", mkdir=True)
 fname.add("ga_stc", "{processed_path}/stcs/GA_ses-{session:02d}_task-{task}_cond-{condition}", mkdir=True)
 fname.add("ga_stc_hemi", "{processed_path}/stcs/GA_ses-{session:02d}_task-{task}_cond-{condition}-{hemi}.stc", mkdir=True)
+
+# HTML reports
+fname.add("report", "{reports_path}/sub-{subject:02d}_report.h5", mkdir=True)
+fname.add("report_html", "{reports_path}/sub-{subject:02d}_report.html", mkdir=True)
+fname.add("ga_report", "{reports_path}/GA_report.h5", mkdir=True)
+fname.add("ga_report_html", "{reports_path}/GA_report.html", mkdir=True)
 
 # fmt: on
 # ruff: enable[E501]

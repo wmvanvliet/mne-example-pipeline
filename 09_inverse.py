@@ -2,8 +2,9 @@
 Calculate the MNE inverse operator and use it to perform source estimation.
 """
 
-import mne
 import argparse
+
+import mne
 
 import config
 from config import fname
@@ -64,6 +65,7 @@ for condition in config.conditions.keys():
     print("Computing stc for condition:", condition)
     evoked = mne.read_evokeds(
         fname.evokeds(subject=subject, session=session, task=task),
+        proj=config.enable_projections,
         baseline=config.baseline,
         condition=condition,
     )
@@ -83,3 +85,12 @@ for condition in config.conditions.keys():
         ),
         overwrite=True,
     )
+
+    with mne.open_report(fname.report(subject=subject)) as report:
+        report.add_stc(
+            stc,
+            title=f"STC: ses-{session:02d} cond-{condition}",
+            replace=True,
+        )
+
+report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)

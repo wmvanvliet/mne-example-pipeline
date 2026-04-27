@@ -12,7 +12,6 @@ TODO: Update defaults to BioMag standard parameters.
 
 import argparse
 import subprocess
-import sys
 
 import mne
 
@@ -27,15 +26,15 @@ parser.add_argument("-task", default="audvis", help="The task to process")
 parser.add_argument("-run", required=True, type=int, help="The run to process")
 args = parser.parse_args()
 
-subject, session, task, run = args.sub, args.ses, args.task, args.run
+subject = args.sub
+session = args.ses
+task = args.task
+run = args.run
+
 print("Run tSSS on subject:", subject)
 print("Session:", session)
 print("Task:", task)
 print("Run:", run)
-
-if not config.enable_maxfilter:
-    print("Maxfilter disabled. Nothing to be done.")
-    sys.exit(0)
 
 # Use the manually pre-selected bad channels in the config file.
 # Alternatively, we can use automatic detection of bad channels.
@@ -47,33 +46,16 @@ if config.use_megin_maxfilter:
     # Args to be used in maxfilter
     # fmt: off
     # ruff: disable[E501]
-    args = [
-        "maxfilter",
+    subprocess.run(
+        args = [
+            "maxfilter",
 
-        # Input file.
-        "-f", fname.raw(subject=subject, session=session, task=task, run=run, proc="raw"),
+            # Input file.
+            "-f", fname.raw(subject=subject, session=session, task=task, run=run, proc="raw"),
 
-        # Output file.
-        "-o", fname.raw(subject=subject, session=session, task=task, run=run, proc="tsss"),
+            # Output file.
+            "-o", fname.raw(subject=subject, session=session, task=task, run=run, proc="tsss"),
 
-        # Uncomment this to enable continuous head movement compensation.
-        # "-movecomp", "inter",
-
-        "-v",
-        "-in", "8",
-        "-out", "3",
-
-        # Site-specific calibration files.
-        "-cal", fname.calibration(subject=subject, session=session),
-        "-ctc", fname.crosstalk(subject=subject, session=session),
-
-        # Whether to use manually pre-selected bad channels or automatic detection.
-        "-autobad", "off",  # alternatively: "-autobad", "on"
-        "-bad",  # value will be the `current_bads` below
-    ] + current_bads
-
-    if task != "emptyroom":
-        args.extend([
             # Virtually move the head position to the location in this file.
             "-trans",
             fname.raw(subject=subject, session=1, task=task, run=1, proc="raw"),
@@ -81,14 +63,28 @@ if config.use_megin_maxfilter:
             # Write the continuous head position to a file.
             "-hp", fname.pos(subject=subject, session=session, task=task, run=run),
 
-            "-frame", "head",
+            # Uncomment this to enable continuous head movement compensation.
+            # "-movecomp", "inter",
+
             "-st", "60",
+            "-v",
             "-hpicons",
             "-origin", "fit",
+            "-frame", "head",
+            "-in", "8",
+            "-out", "3",
 
-        ])
+            # Site-specific calibration files.
+            "-cal", fname.calibration(subject=subject, session=session),
+            "-ctc", fname.crosstalk(subject=subject, session=session),
 
-    subprocess.run(args)
+            # Whether to use manually pre-selected bad channels or automatic detection.
+            "-autobad", "off",  # alternatively: "-autobad", "on"
+            "-bad",  # value will be the `current_bads` below
+        ] + current_bads
+    )
+    # fmt: on
+    # ruff: enable[E501]
 else:
     # Use MNE-Python's maxfilter implementation.
     raw = mne.io.read_raw(
@@ -98,32 +94,20 @@ else:
     # Set bad channels so maxfilter can ignore them.
     raw.info["bads"] = current_bads
 
-    if task == "emptyroom":
-        coord_frame = "meg"
-        st_duration = None
-        destination = None
+    # Compute head position from the cHPI channels.
+    try:
+        chpi_amps = mne.chpi.compute_chpi_amplitudes(raw)
+        chpi_locs = mne.chpi.compute_chpi_locs(raw.info, chpi_amps)
+        head_pos = mne.chpi.compute_head_pos(raw.info, chpi_locs)
+    except ValueError:
         head_pos = None
-    else:
-        coord_frame = "head"
-        st_duration = min(60, int(raw.duration))
-        destination = fname.raw(
-            subject=subject, session=1, task=task, run=1, proc="raw"
-        )
-        # Compute head position from the cHPI channels.
-        try:
-            chpi_amps = mne.chpi.compute_chpi_amplitudes(raw)
-            chpi_locs = mne.chpi.compute_chpi_locs(raw.info, chpi_amps)
-            head_pos = mne.chpi.compute_head_pos(raw.info, chpi_locs)
-        except ValueError:
-            head_pos = None
 
     # Perform the maxfilter.
     raw_tsss = mne.preprocessing.maxwell_filter(
         raw,
-        coord_frame=coord_frame,
         head_pos=head_pos,
-        destination=destination,
-        st_duration=st_duration,
+        st_duration=min(60, int(raw.duration)),
+        destination=fname.raw(subject=subject, session=1, task=task, run=1, proc="raw"),
         calibration=fname.calibration(subject=subject, session=session),
         cross_talk=fname.crosstalk(subject=subject, session=session),
     )
@@ -131,5 +115,17 @@ else:
         fname.raw(subject=subject, session=session, task=task, run=run, proc="tsss"),
         overwrite=True,
     )
-# fmt: on
-# ruff: enable[E501]
+
+# Write figures to the HTML report
+with mne.open_report(fname.report(subject=subject)) as report:
+    report.add_raw(
+        raw,
+        title=f"Original data ses-{session:02d} task-{task} run-{run:02d}",
+        replace=True,
+    )
+    report.add_raw(
+        raw_tsss,
+        title=f"After maxfilter ses-{session:02d} task-{task} run-{run:02d}",
+        replace=True,
+    )
+    report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)
