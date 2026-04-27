@@ -113,6 +113,7 @@ with mne.open_report(fname.report(subject=subject)) as report:
         ica,
         title=f"ICA ses-{session:02d} task-{task}",
         inst=raw,
+        picks=ica.exclude,
         eog_scores=eog_scores,
         ecg_scores=ecg_scores,
         replace=True,
