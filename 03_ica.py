@@ -17,26 +17,31 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("-sub", required=True, type=int, help="The subject to process")
 parser.add_argument("-ses", required=True, type=int, help="The session to process")
 parser.add_argument("-task", default="audvis", help="The task to process")
-parser.add_argument("-run", required=True, type=int, help="The run to process")
 args = parser.parse_args()
 
 subject = args.sub
 session = args.ses
 task = args.task
-run = args.run
 print("Run ICA on subject:", subject)
 print("Session:", session)
 print("Task:", task)
-print("Run:", run)
 
 if config.enable_maxfilter:
     proc = "tsss"
 else:
     proc = "raw"
-raw = mne.io.read_raw(
-    fname.raw(subject=subject, session=session, task=task, run=run, proc=proc),
-    preload=True,
-)
+
+# Concatenate across all the runs.
+raws = list()
+for run in config.runs_per_task[task]:
+    # Do not pre-load the data into memory. We will load the data after concatenation.
+    raws.append(
+        mne.io.read_raw(
+            fname.raw(subject=subject, session=session, task=task, run=run, proc=proc),
+            preload=False,
+        )
+    )
+raw = mne.concatenate_raws(raws).load_data()
 
 # First bandpass filter the data with a lower bound of 1 Hz. This ensures the data is
 # reasonably centered around zero at all times. Note that the lower bound of 1 Hz. is
@@ -67,9 +72,16 @@ if not config.enable_maxfilter:
     raw_non_tsss = raw
 else:
     # Read non-tSSS processed data.
-    raw_non_tsss = mne.io.read_raw(
-        fname.raw(subject=subject, session=session, task=task, run=run, proc="raw")
-    )
+    raw_non_tsss = mne.concatenate_raws(
+        [
+            mne.io.read_raw(
+                fname.raw(
+                    subject=subject, session=session, task=task, run=run, proc="raw"
+                ),
+                preload=False,
+            )
+        ]
+    ).load_data()
 # Find the onsets of the heartbeats on the non-tSSS data, then cut epochs around them
 # on the tSSS data.
 ecg_events = mne.preprocessing.find_ecg_events(raw_non_tsss)[0]
@@ -93,6 +105,16 @@ ecg_bads, ecg_scores = ica.find_bads_ecg(
 ica.exclude = eog_bads + ecg_bads
 
 # Save the ICA solution.
-ica.save(
-    fname.ica(subject=subject, session=session, task=task, run=run), overwrite=True
-)
+ica.save(fname.ica(subject=subject, session=session, task=task), overwrite=True)
+
+# Write figures to the HTML report
+with mne.open_report(fname.report(subject=subject)) as report:
+    report.add_ica(
+        ica,
+        title=f"ICA ses-{session:02d} task-{task}",
+        inst=raw,
+        eog_scores=eog_scores,
+        ecg_scores=ecg_scores,
+        replace=True,
+    )
+    report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)

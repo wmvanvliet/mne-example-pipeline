@@ -20,7 +20,6 @@ DOIT_CONFIG = dict(
     sort="definition",
 )
 
-
 # This example task executes a single analysis script for each subject, giving
 # the subject as a command line parameter to the script.
 def task_bids():
@@ -82,22 +81,25 @@ def task_ica():
     for sub in subjects:
         for ses in sessions:
             for task in tasks:
-                for run in runs_per_task[task]:
-                    yield dict(
-                        # Give the sub-task a name.
-                        name=f"sub-{sub:02d}:ses-{ses:02d}:task-{task}:run-{run:02d}",
-                        file_dep=[
-                            fname.raw(subject=sub, session=ses, task=task, run=run, proc="raw"),
-                            fname.raw(subject=sub, session=ses, task=task, run=run, proc="tsss"),
-                            "03_ica.py",
-                        ],
-                        targets=[
-                            fname.ica(subject=sub, session=ses, task=task, run=run),
-                        ],
-                        actions=[
-                            f"python 03_ica.py -sub={sub} -ses={ses} -task={task} -run={run}"
-                        ],
-                    )
+                yield dict(
+                    # Give the sub-task a name.
+                    name=f"sub-{sub:02d}:ses-{ses:02d}:task-{task}",
+                    file_dep=[
+                        fname.raw(subject=sub, session=ses, task=task, run=run, proc="raw")
+                        for run in runs_per_task[task]
+                    ] + [
+                        fname.raw(subject=sub, session=ses, task=task, run=run, proc="tsss")
+                        for run in runs_per_task[task]
+                    ] + [
+                        "03_ica.py",
+                    ],
+                    targets=[
+                        fname.ica(subject=sub, session=ses, task=task),
+                    ],
+                    actions=[
+                        f"python 03_ica.py -sub={sub} -ses={ses} -task={task}"
+                    ],
+                )
 
 def task_epochs():
     """Step 04: Create epochs and evoked responses."""
@@ -249,4 +251,20 @@ def task_ga():
         actions=[
             "python 10_grand_average.py"
         ],
+    )
+
+
+# Finally we define some meta-tasks that run portions of the pipeline.
+def task_sensor():
+    """Run all sensor-level analysis steps."""
+    return dict(
+        actions=None,
+        task_dep=["bids", "tsss", "ica", "epochs"],
+    )
+
+def task_source():
+    """Run all source-level analysis steps."""
+    return dict(
+        actions=None,
+        task_dep=["forward", "inverse", "ga"],
     )

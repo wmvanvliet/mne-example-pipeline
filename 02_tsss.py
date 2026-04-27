@@ -115,3 +115,17 @@ else:
         fname.raw(subject=subject, session=session, task=task, run=run, proc="tsss"),
         overwrite=True,
     )
+
+# Write figures to the HTML report
+with mne.open_report(fname.report(subject=subject)) as report:
+    report.add_raw(
+        raw,
+        title=f"Original data ses-{session:02d} task-{task} run-{run:02d}",
+        replace=True,
+    )
+    report.add_raw(
+        raw_tsss,
+        title=f"After maxfilter ses-{session:02d} task-{task} run-{run:02d}",
+        replace=True,
+    )
+    report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)

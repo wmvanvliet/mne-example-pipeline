@@ -44,7 +44,7 @@ You can perform the first steps of the analysis pipeline, that deal with sensor-
 #### 2. Perform the manual steps required for source level analysis
 Before we can move on to source level analysis, there are some manual steps to be performed.
 
-First, FreeSurfer needs to be run, which takes a few hours per subject. This is why you may want to perform this step seperately, perhaps on Triton. You can execute it by running `doit freesurfer`.
+First, FreeSurfer needs to be run, which takes a few hours per subject. This is why you may want to perform this step separately, perhaps on Triton. You can execute it by running `doit freesurfer`.
 
 Second, the FreeSurfer MRI surfaces need to be co-registered with the MEG data. This is best done in an interactive python environment (an IPython terminal) by running `%run 07_coregistration.py -sub <subject-number> -ses <session-number>`. It will open a GUI you can use for co-registration and save the resulting transformation when you close the GUI.
 

@@ -45,14 +45,14 @@ for run in config.runs_per_task[task]:
         preload=True,
     )
 
-    # Clean the data. First by bandpass filtering, then by applying the ICA to it.
+    # Apply the bandpass filter to the data.
     raw.filter(*config.bandpass)
-    ica = mne.preprocessing.read_ica(
-        fname.ica(subject=subject, session=session, task=task, run=run)
-    )
+
+    # Set the reference for the EEG (as a projector).
+    raw.set_eeg_reference("average", projection=True)
 
     # Collect the `raw` objects from all the runs into a list.
-    raws.append(ica.apply(raw))
+    raws.append(raw)
 
 # Concatenate raw data across runs. This only works if the data has been transformed to
 # the same head position during the maxfilter step.
@@ -75,10 +75,14 @@ epochs = mne.Epochs(
     proj=config.enable_projections,
 )
 
+# Clean the data with the ICA we computed in the previous step.
+ica = mne.preprocessing.read_ica(fname.ica(subject=subject, session=session, task=task))
+epochs = ica.apply(epochs)
+
 # Save epochs.
 epochs.save(fname.epochs(subject=subject, session=session, task=task), overwrite=True)
 
-# Calculate and save evoked responses for each experimental codition.
+# Calculate and save evoked responses for each experimental condition.
 evokeds = list()
 for cond, event in config.conditions.items():
     evoked = epochs[event].average()
@@ -89,3 +93,20 @@ for cond, event in config.conditions.items():
 mne.write_evokeds(
     fname.evokeds(subject=subject, session=session, task=task), evokeds, overwrite=True
 )
+
+# Write figures to the HTML report
+with mne.open_report(fname.report(subject=subject)) as report:
+    report.add_epochs(
+        epochs,
+        title=f"Epochs: ses-{session:02d} task-{task}",
+        replace=True,
+    )
+    report.add_evokeds(
+        evokeds,
+        titles=[
+            f"Evokeds: ses-{session:02d} task-{task} cond-{cond}"
+            for cond in config.conditions.keys()
+        ],
+        replace=True,
+    )
+    report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)
