@@ -37,10 +37,8 @@ tsss:
 
 ica:
 	for i in $(SUBJ); do \
-		python 03_ica.py -sub $$i -ses 1 -task audvis -run 1; \
-		python 03_ica.py -sub $$i -ses 1 -task audvis -run 2; \
-		python 03_ica.py -sub $$i -ses 2 -task audvis -run 1; \
-		python 03_ica.py -sub $$i -ses 2 -task audvis -run 2; \
+		python 03_ica.py -sub $$i -ses 1 -task audvis; \
+		python 03_ica.py -sub $$i -ses 2 -task audvis; \
 	done
 
 epochs:

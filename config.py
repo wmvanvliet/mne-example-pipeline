@@ -45,10 +45,9 @@ sessions = [1, 2]
 # "Runs" are blocks of trials, run during the same session. For example, all the trials
 # before the participant took a break could be a "run". "Tasks" are different
 # experimental paradigms. We often have a different number of runs per task.
-tasks = ["audvis", "emptyroom"]
+tasks = ["audvis"]
 runs_per_task = {
     "audvis": [1, 2],
-    "emptyroom": [1],
 }
 
 # Events and their trigger-codes.
@@ -88,7 +87,7 @@ bad_channels = pd.DataFrame(bad_channels).explode("channels")
 ########################################################################################
 # Common parameters used in multiple analysis scripts.
 ########################################################################################
-proc = "tsss"  # Set to `proc = "raw"` to disable maxfilter TSSS
+enable_maxfilter = False  # whether to perform tSSS maxfiltering
 use_megin_maxfilter = True  # whether to use the official MegIn program or MNE-Python
 
 # Bandpass filter to apply.
@@ -142,7 +141,6 @@ fname.add("task", "audvis")  # the task is always "audvis" this example experime
 
 # Original raw data, before BIDS conversion. THESE WILL BE DIFFERENT FOR YOUR OWN STUDY!
 fname.add("orig_meg", "{orig_path}/meg/sub{subject:02d}_session{session}_run{run}_raw.fif")
-fname.add("orig_empty_room", "{orig_path}/meg/sub{subject:02d}_session{session}_emptyroom_raw.fif")
 fname.add("orig_mri", "{orig_path}/mri/sub{subject:02d}.mgz")
 # Scanner-specific calibration files.
 # These depends on whether you recorded the data at BioMag, Aalto, or somewhere else.
@@ -165,7 +163,7 @@ fname.add("epochs", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{s
 fname.add("evokeds", "{processed_path}/evokeds/sub-{subject:02d}_ses-{session:02d}_task-{task}_ave.fif", mkdir=True)
 
 # Artefact removal
-fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_run-{run:02d}_ica.fif", mkdir=True)
+fname.add("ica", "{processed_path}/sub-{subject:02d}/sub-{subject:02d}_ses-{session:02d}_task-{task}_ica.fif", mkdir=True)
 
 # Coregistration files (WIP)
 fname.add("fid", "{subjects_dir}/sub-{subject:02d}/bem/sub-{subject:02d}_fiducials.fif", mkdir=True)

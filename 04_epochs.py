@@ -4,10 +4,8 @@ We concanenate epochs across runs.
 """
 
 import argparse
-import os
 
 import mne
-import numpy as np
 
 import config
 from config import fname
@@ -26,9 +24,14 @@ print("Cut epochs for subject:", subject)
 print("Session:", session)
 print("Task:", task)
 
+if config.enable_maxfilter:
+    proc = "tsss"
+else:
+    proc = "raw"
+
 raws = list()
 for run in config.runs_per_task[task]:
-    # Read the TSSS-filtered data and clean it with the ICA computed during the previous
+    # Read the tSSS-filtered data and clean it with the ICA computed during the previous
     # step.
     print("Processing run: ", run)
     raw = mne.io.read_raw(
@@ -37,19 +40,19 @@ for run in config.runs_per_task[task]:
             session=session,
             task=task,
             run=run,
-            proc=config.proc,
+            proc=proc,
         ),
         preload=True,
     )
 
-    # Clean the data. First by bandpass filtering, then by applying the ICA to it.
+    # Apply the bandpass filter to the data.
     raw.filter(*config.bandpass)
-    ica = mne.preprocessing.read_ica(
-        fname.ica(subject=subject, session=session, task=task, run=run)
-    )
+
+    # Set the reference for the EEG (as a projector).
+    raw.set_eeg_reference("average", projection=True)
 
     # Collect the `raw` objects from all the runs into a list.
-    raws.append(ica.apply(raw))
+    raws.append(raw)
 
 # Concatenate raw data across runs. This only works if the data has been transformed to
 # the same head position during the maxfilter step.
@@ -71,10 +74,14 @@ epochs = mne.Epochs(
     preload=True,
 )
 
+# Clean the data with the ICA we computed in the previous step.
+ica = mne.preprocessing.read_ica(fname.ica(subject=subject, session=session, task=task))
+epochs = ica.apply(epochs)
+
 # Save epochs.
 epochs.save(fname.epochs(subject=subject, session=session, task=task), overwrite=True)
 
-# Calculate and save evoked responses for each experimental codition.
+# Calculate and save evoked responses for each experimental condition.
 evokeds = list()
 for cond, event in config.conditions.items():
     evoked = epochs[event].average()
