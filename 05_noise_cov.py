@@ -39,3 +39,13 @@ mne.write_cov(
     noise_cov,
     overwrite=True,
 )
+
+# Write figures to the HTML report
+with mne.open_report(fname.report(subject=subject)) as report:
+    report.add_covariance(
+        noise_cov,
+        info=epochs.info,
+        title=f"Noise covariance: ses-{session:02d} task-{task}",
+        replace=True,
+    )
+    report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)

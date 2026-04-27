@@ -230,6 +230,8 @@ fname.add("ga_stc_hemi", "{processed_path}/stcs/GA_ses-{session:02d}_task-{task}
 # HTML reports
 fname.add("report", "{reports_path}/sub-{subject:02d}_report.h5", mkdir=True)
 fname.add("report_html", "{reports_path}/sub-{subject:02d}_report.html", mkdir=True)
+fname.add("ga_report", "{reports_path}/GA_report.h5", mkdir=True)
+fname.add("ga_report_html", "{reports_path}/GA_report.html", mkdir=True)
 
 # fmt: on
 # ruff: enable[E501]

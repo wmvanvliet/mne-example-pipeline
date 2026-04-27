@@ -37,6 +37,10 @@ bem = mne.make_bem_model(
 bem_sol = mne.make_bem_solution(bem)
 mne.write_bem_solution(fname.bem_sol(subject=subject), bem_sol, overwrite=True)
 
+# Add a figure of the BEM to the HTML report
+with mne.open_report(fname.report(subject=subject)) as report:
+    report.add_bem(subject=freesurfer_subject, title="BEM", replace=True)
+
 for session in config.sessions:
     print("Processing session: ", session)
     for task in config.tasks:
@@ -62,3 +66,16 @@ for session in config.sessions:
             fwd,
             overwrite=True,
         )
+
+    # Add a figure of the head model to the HTML report
+    with mne.open_report(fname.report(subject=subject)) as report:
+        report.add_trans(
+            fname.trans(subject=subject, session=session),
+            info=info,
+            subject=freesurfer_subject,
+            plot_kwargs=dict(src=src),
+            title=f"Head model: ses-{session:02d}",
+            replace=True,
+        )
+
+report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)

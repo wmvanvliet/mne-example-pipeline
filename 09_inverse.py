@@ -2,8 +2,9 @@
 Calculate the MNE inverse operator and use it to perform source estimation.
 """
 
-import mne
 import argparse
+
+import mne
 
 import config
 from config import fname
@@ -84,3 +85,12 @@ for condition in config.conditions.keys():
         ),
         overwrite=True,
     )
+
+    with mne.open_report(fname.report(subject=subject)) as report:
+        report.add_stc(
+            stc,
+            title=f"STC: ses-{session:02d} cond-{condition}",
+            replace=True,
+        )
+
+report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)
