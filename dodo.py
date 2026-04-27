@@ -37,11 +37,9 @@ def task_bids():
         file_dep.append(fname.orig_mri(subject=sub))
         targets.append(fname.mri(subject=sub))
         for ses in sessions:
-            file_dep.append(fname.orig_emptyroom(subject=sub, session=ses))
             targets.append(fname.calibration(subject=sub, session=ses))
             targets.append(fname.crosstalk(subject=sub, session=ses))
             for task in tasks:
-                # targets.append(fname.emptyroom(subject=sub, session=ses, task=task))
                 for run in runs_per_task[task]:
                     file_dep.append(fname.orig_meg(subject=sub, session=ses, task=task, run=run))
                     targets.append(fname.raw(subject=sub, session=ses, task=task, run=run, proc="raw"))

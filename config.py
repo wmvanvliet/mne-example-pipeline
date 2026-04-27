@@ -8,10 +8,8 @@ Configuration parameters for the study.
 
 import getpass
 import os
-import pathlib
 from socket import getfqdn
 
-import mne_bids
 import pandas as pd
 from filename_templates import FileNames
 
@@ -79,10 +77,9 @@ sessions = [1, 2]
 # "Runs" are blocks of trials, run during the same session. For example, all the trials
 # before the participant took a break could be a "run". "Tasks" are different
 # experimental paradigms. We often have a different number of runs per task.
-tasks = ["audvis", "emptyroom"]
+tasks = ["audvis"]
 runs_per_task = {
     "audvis": [1, 2],
-    "emptyroom": [1],
 }
 
 # Events and their trigger-codes.
@@ -177,7 +174,6 @@ fname.add("task", "audvis")  # the task is always "audvis" this example experime
 
 # Original raw data, before BIDS conversion. THESE WILL BE DIFFERENT FOR YOUR OWN STUDY!
 fname.add("orig_meg", "{orig_path}/meg/sub{subject:02d}_session{session}_run{run}_raw.fif")
-fname.add("orig_emptyroom", "{orig_path}/meg/sub{subject:02d}_session{session}_emptyroom_raw.fif")
 fname.add("orig_mri", "{orig_path}/mri/sub{subject:02d}.mgz")
 # Scanner-specific calibration files.
 # These depends on whether you recorded the data at BioMag, Aalto, or somewhere else.

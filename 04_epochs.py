@@ -4,10 +4,8 @@ We concanenate epochs across runs.
 """
 
 import argparse
-import os
 
 import mne
-import numpy as np
 
 import config
 from config import fname
