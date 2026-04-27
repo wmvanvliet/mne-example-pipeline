@@ -7,7 +7,7 @@ A standard pipeline for source localization of evoked responses using MNE with a
 There are multiple branches in this repository. You are currently on the `expert` branch:
 - `minimal` The most basic version of the pipeline, handling one data file per subject.
 - `advanced` A more powerful version of the pipeline, handling multiple subjects, sessions and runs. Adds more bells and whistles to the code to make it portable and reproducible. 
-- **`expert`** An even more powerful version, adding "empty room" recordings, a build system, and HTML reports.
+- **`expert`** An even more powerful version, adding a build system, and HTML reports.
 
 
 ## Getting started
@@ -44,17 +44,20 @@ You can perform the first steps of the analysis pipeline, that deal with sensor-
 #### 2. Perform the manual steps required for source level analysis
 Before we can move on to source level analysis, there are some manual steps to be performed.
 
-First, FreeSurfer needs to be run, which takes a few hours per subject. This is why this step is not performed automatically. You can execute it by running `doit freesurfer`.
+First, FreeSurfer needs to be run, which takes a few hours per subject. This is why you may want to perform this step seperately, perhaps on Triton. You can execute it by running `doit freesurfer`.
 
 Second, the FreeSurfer MRI surfaces need to be co-registered with the MEG data. This is best done in an interactive python environment (an IPython terminal) by running `%run 07_coregistration.py -sub <subject-number> -ses <session-number>`. It will open a GUI you can use for co-registration and save the resulting transformation when you close the GUI.
 
 #### 3. Run the source level analysis
 You can now perform the final steps of the analysis pipeline, that deal with source-level data, by executing: `doit source`.
 
+#### 4. Run the entire analysis
+When you execute `doit` without any parameters, all steps will be run. Any steps that have already run in the past and haven't changed since will be skipped. Hence, it is a good check to see if every step has succeeded and everything is up to date.
+
 
 ## Building on this example pipeline
 
-This repository can serve as a template for your own analysis pipeline. Generally we recommend splitting each analysis step into its own script, and number them. In addition, we recommend having a single `config.py` file that contains all the parameters that are shared between analysis scripts. For more information and ideas, see: https://doi.org/10.1371/journal.pcbi.1007358
+This repository can serve as a template for your own analysis pipeline. Generally we recommend splitting each analysis step into its own script, and number them. In addition, we recommend having a single `config.py` file that contains all the parameters that are shared between analysis scripts. Furthermore, we recommend using a build system to control running all of the steps in an automatic fashion. For more information and ideas, see: https://doi.org/10.1371/journal.pcbi.1007358
 
 
 ## Authors
