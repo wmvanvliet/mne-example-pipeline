@@ -77,7 +77,7 @@ epochs = mne.Epochs(
 
 # Clean the data with the ICA we computed in the previous step.
 ica = mne.preprocessing.read_ica(fname.ica(subject=subject, session=session, task=task))
-epochs = ica.apply(epochs)
+epochs = ica.apply(epochs).apply_baseline()
 
 # Save epochs.
 epochs.save(fname.epochs(subject=subject, session=session, task=task), overwrite=True)
