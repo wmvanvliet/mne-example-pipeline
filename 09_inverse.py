@@ -64,6 +64,7 @@ for condition in config.conditions.keys():
     print("Computing stc for condition:", condition)
     evoked = mne.read_evokeds(
         fname.evokeds(subject=subject, session=session, task=task),
+        proj=config.enable_projections,
         baseline=config.baseline,
         condition=condition,
     )

@@ -4,6 +4,7 @@ import argparse
 
 import mne
 
+import config
 from config import fname
 
 # Handle command line arguments
@@ -22,7 +23,9 @@ print("Task:", task)
 
 # Get epochs
 epochs = mne.read_epochs(
-    fname.epochs(subject=subject, session=session, task=task), preload=True
+    fname.epochs(subject=subject, session=session, task=task),
+    proj=config.enable_projections,
+    preload=True,
 )
 
 # Calculate noise covariance on baseline time period

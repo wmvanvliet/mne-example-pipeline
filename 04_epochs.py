@@ -72,6 +72,7 @@ epochs = mne.Epochs(
     baseline=config.baseline,
     reject=config.reject_epochs,
     preload=True,
+    proj=config.enable_projections,
 )
 
 # Save epochs.
