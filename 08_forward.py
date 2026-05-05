@@ -13,6 +13,7 @@ parser.add_argument("-sub", required=True, type=int, help="The subject to proces
 args = parser.parse_args()
 
 subject = args.sub
+fname.fill_placeholder("subject", subject)
 # Convert the number into the corresponding FreeSurfer subject: 1 -> sub-01
 freesurfer_subject = f"sub-{subject:02d}"
 print("Computing forward solution for subject: ", subject)
@@ -25,7 +26,7 @@ src = mne.setup_source_space(
     n_jobs=config.n_jobs,
     add_dist=True,
 )
-mne.write_source_spaces(fname.src(subject=subject), src, overwrite=True)
+mne.write_source_spaces(fname.src, src, overwrite=True)
 
 # Create BEM model
 bem = mne.make_bem_model(
@@ -35,10 +36,10 @@ bem = mne.make_bem_model(
     conductivity=(0.3,),  # one-layer model, use (0.3, 0.006, 0.3) for three layers
 )
 bem_sol = mne.make_bem_solution(bem)
-mne.write_bem_solution(fname.bem_sol(subject=subject), bem_sol, overwrite=True)
+mne.write_bem_solution(fname.bem_sol, bem_sol, overwrite=True)
 
 # Add a figure of the BEM to the HTML report
-with mne.open_report(fname.report(subject=subject)) as report:
+with mne.open_report(fname.report) as report:
     report.add_bem(subject=freesurfer_subject, title="BEM", replace=True)
 
 for session in config.sessions:
@@ -49,11 +50,11 @@ for session in config.sessions:
         # Create the forward model, co-registration required (trans_file)
         # Use first run in one of the tasks for forward model
         info = mne.io.read_info(
-            fname.raw(subject=subject, session=session, task=task, run=1, proc="tsss")
+            fname.raw(session=session, task=task, run=1, proc="tsss")
         )
         fwd = mne.make_forward_solution(
             info,
-            trans=fname.trans(subject=subject, session=session),
+            trans=fname.trans(session=session),
             src=src,
             bem=bem_sol,
             meg=True,
@@ -62,15 +63,15 @@ for session in config.sessions:
             n_jobs=config.n_jobs,
         )
         mne.write_forward_solution(
-            fname.fwd(subject=subject, session=session, task=task),
+            fname.fwd(session=session, task=task),
             fwd,
             overwrite=True,
         )
 
     # Add a figure of the head model to the HTML report
-    with mne.open_report(fname.report(subject=subject)) as report:
+    with mne.open_report(fname.report) as report:
         report.add_trans(
-            fname.trans(subject=subject, session=session),
+            fname.trans(session=session),
             info=info,
             subject=freesurfer_subject,
             plot_kwargs=dict(src=src),
@@ -78,4 +79,4 @@ for session in config.sessions:
             replace=True,
         )
 
-report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)
+report.save(fname.report_html, open_browser=False, overwrite=True)

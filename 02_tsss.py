@@ -31,6 +31,11 @@ session = args.ses
 task = args.task
 run = args.run
 
+fname.fill_placeholder("subject", subject)
+fname.fill_placeholder("session", session)
+fname.fill_placeholder("task", task)
+fname.fill_placeholder("run", run)
+
 print("Run tSSS on subject:", subject)
 print("Session:", session)
 print("Task:", task)
@@ -51,17 +56,17 @@ if config.use_megin_maxfilter:
             "maxfilter",
 
             # Input file.
-            "-f", fname.raw(subject=subject, session=session, task=task, run=run, proc="raw"),
+            "-f", fname.raw(proc="raw"),
 
             # Output file.
-            "-o", fname.raw(subject=subject, session=session, task=task, run=run, proc="tsss"),
+            "-o", fname.raw(proc="tsss"),
 
             # Virtually move the head position to the location in this file.
             "-trans",
-            fname.raw(subject=subject, session=1, task=task, run=1, proc="raw"),
+            fname.raw(session=1, run=1, proc="raw"),
 
             # Write the continuous head position to a file.
-            "-hp", fname.pos(subject=subject, session=session, task=task, run=run),
+            "-hp", fname.pos,
 
             # Uncomment this to enable continuous head movement compensation.
             # "-movecomp", "inter",
@@ -75,8 +80,8 @@ if config.use_megin_maxfilter:
             "-out", "3",
 
             # Site-specific calibration files.
-            "-cal", fname.calibration(subject=subject, session=session),
-            "-ctc", fname.crosstalk(subject=subject, session=session),
+            "-cal", fname.calibration,
+            "-ctc", fname.crosstalk,
 
             # Whether to use manually pre-selected bad channels or automatic detection.
             "-autobad", "off",  # alternatively: "-autobad", "on"
@@ -87,9 +92,7 @@ if config.use_megin_maxfilter:
     # ruff: enable[E501]
 else:
     # Use MNE-Python's maxfilter implementation.
-    raw = mne.io.read_raw(
-        fname.raw(subject=subject, session=session, task=task, run=run, proc="raw")
-    )
+    raw = mne.io.read_raw(fname.raw(proc="raw"))
 
     # Set bad channels so maxfilter can ignore them.
     raw.info["bads"] = current_bads
@@ -107,17 +110,14 @@ else:
         raw,
         head_pos=head_pos,
         st_duration=min(60, int(raw.duration)),
-        destination=fname.raw(subject=subject, session=1, task=task, run=1, proc="raw"),
-        calibration=fname.calibration(subject=subject, session=session),
-        cross_talk=fname.crosstalk(subject=subject, session=session),
+        destination=fname.raw(session=1, run=1, proc="raw"),
+        calibration=fname.calibration,
+        cross_talk=fname.crosstalk,
     )
-    raw_tsss.save(
-        fname.raw(subject=subject, session=session, task=task, run=run, proc="tsss"),
-        overwrite=True,
-    )
+    raw_tsss.save(fname.raw(proc="tsss"), overwrite=True)
 
 # Write figures to the HTML report
-with mne.open_report(fname.report(subject=subject)) as report:
+with mne.open_report(fname.report) as report:
     report.add_raw(
         raw,
         title=f"Original data ses-{session:02d} task-{task} run-{run:02d}",
@@ -128,4 +128,4 @@ with mne.open_report(fname.report(subject=subject)) as report:
         title=f"After maxfilter ses-{session:02d} task-{task} run-{run:02d}",
         replace=True,
     )
-    report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)
+    report.save(fname.report_html, open_browser=False, overwrite=True)

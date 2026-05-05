@@ -26,13 +26,18 @@ args = parser.parse_args()
 
 subject = args.sub
 session = args.ses
+
+fname.fill_placeholder("subject", subject)
+fname.fill_placeholder("session", session)
+
+print("Performing coregistration for subject:", subject)
+print("Session:", session)
+
 # Convert the number into the corresponding FreeSurfer subject: 1 -> sub-01
 freesurfer_subject = f"sub-{subject:02d}"
 
 ## Coregistration
-info = mne.io.read_info(
-    fname.raw(subject=subject, session=session, task="audvis", run=1, proc="raw")
-)
+info = mne.io.read_info(fname.raw(task="audvis", run=1, proc="raw"))
 
 if not args.redo and fname.fid(subject=subject).exists():
     # MRI fiducials already set, perform co-registration automatically.
@@ -46,9 +51,7 @@ else:
     )
     coreg = gui.coreg
 
-mne.write_trans(
-    fname.trans(subject=subject, session=session), coreg.trans, overwrite=True
-)
+mne.write_trans(fname.trans, coreg.trans, overwrite=True)
 
 # ruff: disable[E501]
 

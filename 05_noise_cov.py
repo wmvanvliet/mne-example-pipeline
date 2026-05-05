@@ -17,16 +17,17 @@ args = parser.parse_args()
 subject = args.sub
 session = args.ses
 task = args.task
+
+fname.fill_placeholder("subject", subject)
+fname.fill_placeholder("session", session)
+fname.fill_placeholder("task", task)
+
 print("Computing noise covariance for subject:", subject)
 print("Session:", session)
 print("Task:", task)
 
 # Get epochs
-epochs = mne.read_epochs(
-    fname.epochs(subject=subject, session=session, task=task),
-    proj=config.enable_projections,
-    preload=True,
-)
+epochs = mne.read_epochs(fname.epochs, proj=config.enable_projections, preload=True)
 
 # Calculate noise covariance on baseline time period
 # Check rank estimation!!!!
@@ -34,18 +35,14 @@ noise_cov = mne.compute_covariance(epochs, tmin=None, tmax=0, rank="info")
 noise_cov = mne.cov.regularize(noise_cov, epochs.info, mag=0.05, grad=0.05)
 
 # Save noise covariance matrix
-mne.write_cov(
-    fname.noise_cov(subject=subject, session=session, task=task),
-    noise_cov,
-    overwrite=True,
-)
+mne.write_cov(fname.noise_cov, noise_cov, overwrite=True)
 
 # Write figures to the HTML report
-with mne.open_report(fname.report(subject=subject)) as report:
+with mne.open_report(fname.report) as report:
     report.add_covariance(
         noise_cov,
         info=epochs.info,
         title=f"Noise covariance: ses-{session:02d} task-{task}",
         replace=True,
     )
-    report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)
+    report.save(fname.report_html, open_browser=False, overwrite=True)

@@ -22,6 +22,11 @@ args = parser.parse_args()
 subject = args.sub
 session = args.ses
 task = args.task
+
+fname.fill_placeholder("subject", subject)
+fname.fill_placeholder("session", session)
+fname.fill_placeholder("task", task)
+
 print("Run ICA on subject:", subject)
 print("Session:", session)
 print("Task:", task)
@@ -35,12 +40,7 @@ else:
 raws = list()
 for run in config.runs_per_task[task]:
     # Do not pre-load the data into memory. We will load the data after concatenation.
-    raws.append(
-        mne.io.read_raw(
-            fname.raw(subject=subject, session=session, task=task, run=run, proc=proc),
-            preload=False,
-        )
-    )
+    raws.append(mne.io.read_raw(fname.raw(run=run, proc=proc), preload=False))
 raw = mne.concatenate_raws(raws).load_data()
 
 # First bandpass filter the data with a lower bound of 1 Hz. This ensures the data is
@@ -74,12 +74,8 @@ else:
     # Read non-tSSS processed data.
     raw_non_tsss = mne.concatenate_raws(
         [
-            mne.io.read_raw(
-                fname.raw(
-                    subject=subject, session=session, task=task, run=run, proc="raw"
-                ),
-                preload=False,
-            )
+            mne.io.read_raw(fname.raw(run=run, proc="raw"), preload=False)
+            for run in config.runs_per_task[task]
         ]
     ).load_data()
 # Find the onsets of the heartbeats on the non-tSSS data, then cut epochs around them
@@ -105,10 +101,10 @@ ecg_bads, ecg_scores = ica.find_bads_ecg(
 ica.exclude = eog_bads + ecg_bads
 
 # Save the ICA solution.
-ica.save(fname.ica(subject=subject, session=session, task=task), overwrite=True)
+ica.save(fname.ica, overwrite=True)
 
 # Write figures to the HTML report
-with mne.open_report(fname.report(subject=subject)) as report:
+with mne.open_report(fname.report) as report:
     report.add_ica(
         ica,
         title=f"ICA ses-{session:02d} task-{task}",
@@ -118,4 +114,4 @@ with mne.open_report(fname.report(subject=subject)) as report:
         ecg_scores=ecg_scores,
         replace=True,
     )
-    report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)
+    report.save(fname.report_html, open_browser=False, overwrite=True)

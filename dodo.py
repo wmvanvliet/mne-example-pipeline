@@ -20,8 +20,15 @@ DOIT_CONFIG = dict(
     sort="definition",
 )
 
-# This example task executes a single analysis script for each subject, giving
-# the subject as a command line parameter to the script.
+def task_check():
+    """Step 00: Check the system for python dependencies and the presence of data."""
+    return dict(
+        file_dep=["check_system.py"],
+        targets=[fname.system_check],
+        actions=["python check_system.py"],
+    )
+
+
 def task_bids():
     """Step 01: Convert the original data to the BIDS format."""
     # If any of these files change, the script needs to be re-run. Make

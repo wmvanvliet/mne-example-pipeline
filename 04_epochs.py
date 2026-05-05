@@ -20,6 +20,11 @@ args = parser.parse_args()
 subject = args.sub
 session = args.ses
 task = args.task
+
+fname.fill_placeholder("subject", subject)
+fname.fill_placeholder("session", session)
+fname.fill_placeholder("task", task)
+
 print("Cut epochs for subject:", subject)
 print("Session:", session)
 print("Task:", task)
@@ -34,16 +39,7 @@ for run in config.runs_per_task[task]:
     # Read the tSSS-filtered data and clean it with the ICA computed during the previous
     # step.
     print("Processing run: ", run)
-    raw = mne.io.read_raw(
-        fname.raw(
-            subject=subject,
-            session=session,
-            task=task,
-            run=run,
-            proc=proc,
-        ),
-        preload=True,
-    )
+    raw = mne.io.read_raw(fname.raw(run=run, proc=proc), preload=True)
 
     # Apply the bandpass filter to the data.
     raw.filter(*config.bandpass, n_jobs=config.n_jobs)
@@ -76,11 +72,11 @@ epochs = mne.Epochs(
 )
 
 # Clean the data with the ICA we computed in the previous step.
-ica = mne.preprocessing.read_ica(fname.ica(subject=subject, session=session, task=task))
+ica = mne.preprocessing.read_ica(fname.ica)
 epochs = ica.apply(epochs).apply_baseline()
 
 # Save epochs.
-epochs.save(fname.epochs(subject=subject, session=session, task=task), overwrite=True)
+epochs.save(fname.epochs, overwrite=True)
 
 # Calculate and save evoked responses for each experimental condition.
 evokeds = list()
@@ -90,12 +86,10 @@ for cond, event in config.conditions.items():
     evokeds.append(evoked)
 
 # Save evoked responses
-mne.write_evokeds(
-    fname.evokeds(subject=subject, session=session, task=task), evokeds, overwrite=True
-)
+mne.write_evokeds(fname.evokeds, evokeds, overwrite=True)
 
 # Write figures to the HTML report
-with mne.open_report(fname.report(subject=subject)) as report:
+with mne.open_report(fname.report) as report:
     report.add_epochs(
         epochs,
         title=f"Epochs: ses-{session:02d} task-{task}",
@@ -109,4 +103,4 @@ with mne.open_report(fname.report(subject=subject)) as report:
         ],
         replace=True,
     )
-    report.save(fname.report_html(subject=subject), open_browser=False, overwrite=True)
+    report.save(fname.report_html, open_browser=False, overwrite=True)
