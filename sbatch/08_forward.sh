@@ -4,8 +4,8 @@
 #SBATCH --cpus-per-task=4  # set this to config.n_jobs
 #SBATCH --job-name=08_forward
 #SBATCH --array=1-2
-#SBATCH --output=sbatch/out/08_forward_sub-%a.out
+#SBATCH --output=out/08_forward_sub-%a.out
 
 sub=$SLURM_ARRAY_TASK_ID
 module load neuroimaging-env
-srun python 08_forward.py -sub $sub
+srun python ../08_forward.py -sub $sub
