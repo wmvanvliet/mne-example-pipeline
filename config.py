@@ -45,6 +45,7 @@ elif "marijn-laptop" in host and user == "vanvlm1":
     subjects_dir = "./data/bids/derivatives/freesurfer"
     n_jobs = 14
     use_megin_maxfilter = False  # not available on this system
+    os.environ["QT_QPA_PLATFORM"] = "xcb"  # needed for 3d graphics to work
 elif host == "d22-0025.org.aalto.fi" and user == "vanvlm1":
     # Marijn's Aalto workstation
     raw_data_dir = "./data"
@@ -55,6 +56,16 @@ elif host == "d22-0025.org.aalto.fi" and user == "vanvlm1":
     subjects_dir = "./data/bids/derivatives/freesurfer"
     n_jobs = 12
     use_megin_maxfilter = True  # maxfilter™ available!
+elif "triton" in host and user == "vanvlm1":
+    # The Triton cluster
+    raw_data_dir = "/scratch/work/vanvlm1/mne-standard/data"
+    orig_data_path = "/scratch/work/vanvlm1/mne-standard/data/orig"
+    bids_path = "/scratch/work/vanvlm1/mne-standard/data/bids"
+    processed_data_path = "/scratch/work/vanvlm1/mne-standard/data/processed"
+    reports_data_path = "/scratch/work/vanvlm1/mne-standard/data/reports"
+    subjects_dir = "/scratch/work/vanvlm1/mne-standard/data/bids/derivatives/freesurfer"
+    n_jobs = 4  # we will request 4 cores per job
+    use_megin_maxfilter = True  # maxfilter™ available! (module load maxfilter)
 else:
     raise ValueError(f"Please add your system to config.py ({user=} {host=}).")
 
