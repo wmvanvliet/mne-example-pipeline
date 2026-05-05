@@ -7,7 +7,7 @@ A standard pipeline for source localization of evoked responses using MNE with a
 There are multiple branches in this repository. You are currently on the `expert` branch:
 - `minimal` The most basic version of the pipeline, handling one data file per subject.
 - `advanced` A more powerful version of the pipeline, handling multiple subjects, sessions and runs. Adds more bells and whistles to the code to make it portable and reproducible. 
-- **`expert`** An even more powerful version, adding a build system, and HTML reports.
+- **`expert`** An even more powerful version, adding a build system, HTML reports, and SBATCH scripts for running on Triton.
 
 
 ## Getting started
