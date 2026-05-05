@@ -234,7 +234,7 @@ fname.add("ga_report", "{reports_path}/GA_report.h5", mkdir=True)
 fname.add("ga_report_html", "{reports_path}/GA_report.html", mkdir=True)
 
 # Misc.
-fname.add("system_check", "./system_check.txt")
+fname.add("system_check", "./.system_check.txt")
 
 # fmt: on
 # ruff: enable[E501]

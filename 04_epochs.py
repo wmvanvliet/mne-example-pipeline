@@ -46,7 +46,7 @@ for run in config.runs_per_task[task]:
     )
 
     # Apply the bandpass filter to the data.
-    raw.filter(*config.bandpass)
+    raw.filter(*config.bandpass, n_jobs=config.n_jobs)
 
     # Set the reference for the EEG (as a projector).
     raw.set_eeg_reference("average", projection=True)

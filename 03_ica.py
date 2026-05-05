@@ -47,7 +47,7 @@ raw = mne.concatenate_raws(raws).load_data()
 # reasonably centered around zero at all times. Note that the lower bound of 1 Hz. is
 # only used for fitting the ICA, we use a different filter for the analysis of evoked
 # responses.
-raw.filter(1, config.bandpass[1])
+raw.filter(1, config.bandpass[1], n_jobs=config.n_jobs)
 
 # Obtain the mixing and unmixing matrices of the Independant Component Analysis.
 ica = mne.preprocessing.ICA(

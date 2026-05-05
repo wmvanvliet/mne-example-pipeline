@@ -2,5 +2,5 @@ __pycache__
 .*.swp
 data/
 tags
-.doit.db
-system_check.txt
+.doit.*
+.system_check.txt

@@ -22,7 +22,7 @@ src = mne.setup_source_space(
     subject=freesurfer_subject,
     spacing=config.spacing,
     subjects_dir=fname.subjects_dir,
-    n_jobs=-1,
+    n_jobs=config.n_jobs,
     add_dist=True,
 )
 mne.write_source_spaces(fname.src(subject=subject), src, overwrite=True)
@@ -59,7 +59,7 @@ for session in config.sessions:
             meg=True,
             eeg=False,  # turn this on for a combined MEG+EEG head model
             mindist=0,
-            n_jobs=-1,
+            n_jobs=config.n_jobs,
         )
         mne.write_forward_solution(
             fname.fwd(subject=subject, session=session, task=task),
