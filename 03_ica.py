@@ -80,6 +80,7 @@ else:
                 ),
                 preload=False,
             )
+            for run in config.runs_per_task[task]
         ]
     ).load_data()
 # Find the onsets of the heartbeats on the non-tSSS data, then cut epochs around them

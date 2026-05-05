@@ -86,7 +86,7 @@ if config.use_megin_maxfilter:
             # Whether to use manually pre-selected bad channels or automatic detection.
             "-autobad", "off",  # alternatively: "-autobad", "on"
             "-bad",  # value will be the `current_bads` below
-        ] + current_bads
+        ] + [f"'{ch}'" for ch in current_bads]  # wrap channel names in ' ' quotes
     )
     # fmt: on
     # ruff: enable[E501]
