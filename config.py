@@ -58,12 +58,12 @@ elif host == "d22-0025.org.aalto.fi" and user == "vanvlm1":
     use_megin_maxfilter = True  # maxfilter™ available!
 elif "triton" in host and user == "vanvlm1":
     # The Triton cluster
-    raw_data_dir = "/scratch/work/vanvlm1/mne-standard/data"
-    orig_data_path = "/scratch/work/vanvlm1/mne-standard/data/orig"
-    bids_path = "/scratch/work/vanvlm1/mne-standard/data/bids"
-    processed_data_path = "/scratch/work/vanvlm1/mne-standard/data/processed"
-    reports_data_path = "/scratch/work/vanvlm1/mne-standard/data/reports"
-    subjects_dir = "/scratch/work/vanvlm1/mne-standard/data/bids/derivatives/freesurfer"
+    raw_data_dir = "/scratch/work/vanvlm1/mne-standard"
+    orig_data_path = "/scratch/work/vanvlm1/mne-standard/orig"
+    bids_path = "/scratch/work/vanvlm1/mne-standard/bids"
+    processed_data_path = "/scratch/work/vanvlm1/mne-standard/processed"
+    reports_data_path = "/scratch/work/vanvlm1/mne-standard/reports"
+    subjects_dir = "/scratch/work/vanvlm1/mne-standard/bids/derivatives/freesurfer"
     n_jobs = 4  # we will request 4 cores per job
     use_megin_maxfilter = True  # maxfilter™ available! (module load maxfilter)
 else:

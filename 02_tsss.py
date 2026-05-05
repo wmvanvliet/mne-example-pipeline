@@ -86,7 +86,7 @@ if config.use_megin_maxfilter:
             # Whether to use manually pre-selected bad channels or automatic detection.
             "-autobad", "off",  # alternatively: "-autobad", "on"
             "-bad",  # value will be the `current_bads` below
-        ] + current_bads
+        ] + [f"'{ch}'" for ch in current_bads]  # wrap the channel names in ' ' quotes.
     )
     # fmt: on
     # ruff: enable[E501]
@@ -118,6 +118,11 @@ else:
 
 # Write figures to the HTML report
 with mne.open_report(fname.report()) as report:
+    if config.use_megin_maxfilter:
+        # If we used MNE-Python's maxfilter, these are already loaded,
+        # but when using MEGIn's maxfilter, we need to load them now.
+        raw = mne.io.read_raw(fname.raw(proc="raw"))
+        raw_tsss = mne.io.read_raw(fname.raw(proc="tsss"))
     report.add_raw(
         raw,
         title=f"Original data ses-{session:02d} task-{task} run-{run:02d}",
