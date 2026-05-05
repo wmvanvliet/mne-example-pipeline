@@ -31,19 +31,19 @@ print("Processing task:", task)
 # Calculate noise covariance on baseline time period.
 
 # Read noise covariance matrix
-noise_cov = mne.read_cov(fname.noise_cov)
+noise_cov = mne.read_cov(fname.noise_cov())
 
 # Read the forward model, one model has been created for each session
-fwd = mne.read_forward_solution(fname.fwd)
+fwd = mne.read_forward_solution(fname.fwd())
 
 # Read the info
-info = mne.io.read_info(fname.epochs)
+info = mne.io.read_info(fname.epochs())
 
 # Compute inverse operator.
 inverse_operator = mne.minimum_norm.make_inverse_operator(
     info=info, forward=fwd, noise_cov=noise_cov, loose=0.3, depth=0.8
 )
-mne.minimum_norm.write_inverse_operator(fname.inv, inverse_operator, overwrite=True)
+mne.minimum_norm.write_inverse_operator(fname.inv(), inverse_operator, overwrite=True)
 
 # Calculate morph matrix from the subject-specific brain to a template (fsaverage).
 morph = mne.compute_source_morph(
@@ -64,7 +64,7 @@ method = "dSPM"
 for condition in config.conditions.keys():
     print("Computing stc for condition:", condition)
     evoked = mne.read_evokeds(
-        fname.evokeds,
+        fname.evokeds(),
         proj=config.enable_projections,
         baseline=config.baseline,
         condition=condition,
@@ -81,11 +81,11 @@ for condition in config.conditions.keys():
         overwrite=True,
     )
 
-    with mne.open_report(fname.report) as report:
+    with mne.open_report(fname.report()) as report:
         report.add_stc(
             stc,
             title=f"STC: ses-{session:02d} cond-{condition}",
             replace=True,
         )
 
-report.save(fname.report_html, open_browser=False, overwrite=True)
+report.save(fname.report_html(), open_browser=False, overwrite=True)

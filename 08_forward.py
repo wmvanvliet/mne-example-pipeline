@@ -26,7 +26,7 @@ src = mne.setup_source_space(
     n_jobs=config.n_jobs,
     add_dist=True,
 )
-mne.write_source_spaces(fname.src, src, overwrite=True)
+mne.write_source_spaces(fname.src(), src, overwrite=True)
 
 # Create BEM model
 bem = mne.make_bem_model(
@@ -36,10 +36,10 @@ bem = mne.make_bem_model(
     conductivity=(0.3,),  # one-layer model, use (0.3, 0.006, 0.3) for three layers
 )
 bem_sol = mne.make_bem_solution(bem)
-mne.write_bem_solution(fname.bem_sol, bem_sol, overwrite=True)
+mne.write_bem_solution(fname.bem_sol(), bem_sol, overwrite=True)
 
 # Add a figure of the BEM to the HTML report
-with mne.open_report(fname.report) as report:
+with mne.open_report(fname.report()) as report:
     report.add_bem(subject=freesurfer_subject, title="BEM", replace=True)
 
 for session in config.sessions:
@@ -69,7 +69,7 @@ for session in config.sessions:
         )
 
     # Add a figure of the head model to the HTML report
-    with mne.open_report(fname.report) as report:
+    with mne.open_report(fname.report()) as report:
         report.add_trans(
             fname.trans(session=session),
             info=info,
@@ -79,4 +79,4 @@ for session in config.sessions:
             replace=True,
         )
 
-report.save(fname.report_html, open_browser=False, overwrite=True)
+report.save(fname.report_html(), open_browser=False, overwrite=True)

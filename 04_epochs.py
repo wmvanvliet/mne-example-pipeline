@@ -72,11 +72,11 @@ epochs = mne.Epochs(
 )
 
 # Clean the data with the ICA we computed in the previous step.
-ica = mne.preprocessing.read_ica(fname.ica)
+ica = mne.preprocessing.read_ica(fname.ica())
 epochs = ica.apply(epochs).apply_baseline()
 
 # Save epochs.
-epochs.save(fname.epochs, overwrite=True)
+epochs.save(fname.epochs(), overwrite=True)
 
 # Calculate and save evoked responses for each experimental condition.
 evokeds = list()
@@ -86,10 +86,10 @@ for cond, event in config.conditions.items():
     evokeds.append(evoked)
 
 # Save evoked responses
-mne.write_evokeds(fname.evokeds, evokeds, overwrite=True)
+mne.write_evokeds(fname.evokeds(), evokeds, overwrite=True)
 
 # Write figures to the HTML report
-with mne.open_report(fname.report) as report:
+with mne.open_report(fname.report()) as report:
     report.add_epochs(
         epochs,
         title=f"Epochs: ses-{session:02d} task-{task}",
@@ -103,4 +103,4 @@ with mne.open_report(fname.report) as report:
         ],
         replace=True,
     )
-    report.save(fname.report_html, open_browser=False, overwrite=True)
+    report.save(fname.report_html(), open_browser=False, overwrite=True)

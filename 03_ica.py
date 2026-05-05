@@ -101,10 +101,10 @@ ecg_bads, ecg_scores = ica.find_bads_ecg(
 ica.exclude = eog_bads + ecg_bads
 
 # Save the ICA solution.
-ica.save(fname.ica, overwrite=True)
+ica.save(fname.ica(), overwrite=True)
 
 # Write figures to the HTML report
-with mne.open_report(fname.report) as report:
+with mne.open_report(fname.report()) as report:
     report.add_ica(
         ica,
         title=f"ICA ses-{session:02d} task-{task}",
@@ -114,4 +114,4 @@ with mne.open_report(fname.report) as report:
         ecg_scores=ecg_scores,
         replace=True,
     )
-    report.save(fname.report_html, open_browser=False, overwrite=True)
+    report.save(fname.report_html(), open_browser=False, overwrite=True)

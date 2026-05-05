@@ -51,7 +51,7 @@ else:
     )
     coreg = gui.coreg
 
-mne.write_trans(fname.trans, coreg.trans, overwrite=True)
+mne.write_trans(fname.trans(), coreg.trans, overwrite=True)
 
 # ruff: disable[E501]
 

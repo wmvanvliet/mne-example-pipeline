@@ -66,7 +66,7 @@ if config.use_megin_maxfilter:
             fname.raw(session=1, run=1, proc="raw"),
 
             # Write the continuous head position to a file.
-            "-hp", fname.pos,
+            "-hp", fname.pos(),
 
             # Uncomment this to enable continuous head movement compensation.
             # "-movecomp", "inter",
@@ -80,8 +80,8 @@ if config.use_megin_maxfilter:
             "-out", "3",
 
             # Site-specific calibration files.
-            "-cal", fname.calibration,
-            "-ctc", fname.crosstalk,
+            "-cal", fname.calibration(),
+            "-ctc", fname.crosstalk(),
 
             # Whether to use manually pre-selected bad channels or automatic detection.
             "-autobad", "off",  # alternatively: "-autobad", "on"
@@ -111,13 +111,13 @@ else:
         head_pos=head_pos,
         st_duration=min(60, int(raw.duration)),
         destination=fname.raw(session=1, run=1, proc="raw"),
-        calibration=fname.calibration,
-        cross_talk=fname.crosstalk,
+        calibration=fname.calibration(),
+        cross_talk=fname.crosstalk(),
     )
     raw_tsss.save(fname.raw(proc="tsss"), overwrite=True)
 
 # Write figures to the HTML report
-with mne.open_report(fname.report) as report:
+with mne.open_report(fname.report()) as report:
     report.add_raw(
         raw,
         title=f"Original data ses-{session:02d} task-{task} run-{run:02d}",
@@ -128,4 +128,4 @@ with mne.open_report(fname.report) as report:
         title=f"After maxfilter ses-{session:02d} task-{task} run-{run:02d}",
         replace=True,
     )
-    report.save(fname.report_html, open_browser=False, overwrite=True)
+    report.save(fname.report_html(), open_browser=False, overwrite=True)
