@@ -1,6 +1,10 @@
 #!/bin/bash
-
 # This is not an SBATCH job, it only launches SBATCH jobs.
+
+# Since we are using relative paths, we need to make sure the current working
+# directory (pwd) is the directory containing this script.
+cd $(dirname $0)
+
 # Running `sbatch` will output: "Submitted batch job JOB_ID".
 # We use "awk '{print $4}'" to get the JOB_ID number.
 jid01=$(sbatch 01_convert_to_BIDS.sh | awk '{print $4}')

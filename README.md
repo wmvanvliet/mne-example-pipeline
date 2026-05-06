@@ -67,6 +67,10 @@ You can now perform the final steps of the analysis pipeline, that deal with sou
 #### 4. Run the entire analysis
 When you execute `doit` without any parameters, all steps will be run. Any steps that have already run in the past and haven't changed since will be skipped. Hence, it is a good check to see if every step has succeeded and everything is up to date.
 
+### Running on Triton
+
+You can run this pipeline on Triton. See [`sbatch/README.md`](sbatch/README) for instructions.
+
 
 ## Building on this example pipeline
 

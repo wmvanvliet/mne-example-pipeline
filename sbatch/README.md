@@ -2,7 +2,7 @@
 
 ## Usage
 
-Start the pipeline by running (on the login node) the `run_all.sh` script. That script submits all the jobs to run the entire pipeline. Take a look at that script to see how job dependencies are handled.
+Start the pipeline by running the `sbatch/run_all.sh` script (on the login node). The script submits all the jobs to run the entire pipeline. Take a look at that script to see how job dependencies are handled.
 
 The individual steps are in their own SBATCH scripts:
 ```
