@@ -2,9 +2,9 @@
 #SBATCH --time=1:00:00
 #SBATCH --mem=32G
 #SBATCH --cpus-per-task=4  # set this to config.n_jobs
-#SBATCH --job-name=01_sensor_level
+#SBATCH --job-name=02_sensor_level
 #SBATCH --array=1-2  # do this for all 2 subjects
-#SBATCH --output=out/01_sensor_level_sub-%a.out
+#SBATCH --output=out/02_sensor_level_sub-%a.out
 
 # The subject we are currently processing.
 sub=$SLURM_ARRAY_TASK_ID

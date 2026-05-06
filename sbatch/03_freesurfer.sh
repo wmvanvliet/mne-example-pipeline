@@ -2,9 +2,9 @@
 #SBATCH --time=12:00:00  # FreeSurfer takes a long time
 #SBATCH --mem=16G
 #SBATCH --cpus-per-task=1  # FreeSurfer is single-core
-#SBATCH --job-name=06_freesurfer
+#SBATCH --job-name=03_freesurfer
 #SBATCH --array=1-2
-#SBATCH --output=out/06_freesurfer_sub-%a.out
+#SBATCH --output=out/03_freesurfer_sub-%a.out
 
 # The subject we are currently processing.
 sub=$SLURM_ARRAY_TASK_ID
