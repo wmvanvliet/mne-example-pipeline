@@ -14,18 +14,31 @@ There are multiple branches in this repository. You are currently on the `expert
 
 #### 1. Have access to a scientific Python environment
 
-To run this analysis pipeline, you need access to a Python environment with has the MNE-Python package installed.
+To run this analysis pipeline, you need access to a Python environment with has the following packages installed:
+- [MNE-Python](https://mne.tools)
+- [Doit](https://pydoit.org)
+- [filename-templates](https://github.com/wmvanvliet/filename-templates)
 
-- On Triton, you can load one with: `module load neuroimaging-env`
+Here are several ways to achieve this:
+- On Triton, you can load one with: `module load neuroimaging-env`.
+  You will need to install the latest version of `filename-templates` youself with `pip install --user filename-templates`.
 - On Aalto workstations, you can load one with:
   `module load scibuilder-mamba-dev neuroimaging-env`  
+  You will need to install the latest version of `filename-templates` youself with `pip install --user filename-templates`.
+- On your own machine, you can use `pip` to install the packages: `mne[full] doit filename-templates`
 
 #### 2. Have access to MegIn's maxfilter™ program and [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/)
 
-- On Triton, you can load them with: `module load maxfilter freesurfer`
-- On Aalto workstations, you can load them with: `module load neuromag freesurfer`
+- On Triton, you can load it with: `module load maxfilter freesurfer`
+- On Aalto workstations, you can load it with: `module load neuromag freesurfer`
 
 Loading the FreeSurfer module will give some additional instructions for you, namely that you should execute `source` on a specific file.
+
+If you don't have access to MegIn's maxfilter™, then you can use the MNE-Python version by setting `use_megin_maxfilter = False` in `config.py`.
+
+You can run FreeSurfer on your own machine, if it's Linux or a Mac.
+You can download FreeSurfer from their website: https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall 
+It will not run on Windows (instead, run it remotely either on a workstation or on Triton).
 
 #### 3. Create the example data
 
