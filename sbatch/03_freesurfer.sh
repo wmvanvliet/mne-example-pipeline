@@ -6,10 +6,13 @@
 #SBATCH --array=1-2
 #SBATCH --output=out/06_freesurfer_sub-%a.out
 
+# The subject we are currently processing.
 sub=$SLURM_ARRAY_TASK_ID
 
+# Load required software.
 module load neuroimaging-env
 module load triton/2024.1-gcc
 module load freesurfer
 
+# Run FreeSurfer.
 srun python ../06_freesurfer.py -sub $sub
