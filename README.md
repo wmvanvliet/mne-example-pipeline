@@ -21,10 +21,14 @@ To run this analysis pipeline, you need access to a Python environment with has 
 
 #### 2. Have access to MegIn's maxfilter™ program and [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/)
 
-- On Triton, you can load them with: `module load maxfilter freesurfer`
-- On Aalto workstations, you can load them with: `module load neuromag freesurfer`
+- On Triton, you can load it with: `module load maxfilter freesurfer`
+- On Aalto workstations, you can load it with: `module load neuromag freesurfer`
 
 Loading the FreeSurfer module will give some additional instructions for you, namely that you should execute `source` on a specific file.
+
+You can run FreeSurfer on your own machine, if it's Linux or a Mac.
+You can download FreeSurfer from their website: https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall 
+It will not run on Windows (instead, run it remotely either on a workstation or on Triton).
 
 #### 3. Create the example data
 
