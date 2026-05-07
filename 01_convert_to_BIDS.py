@@ -2,6 +2,7 @@
 Convert the original data to the BIDS format.
 """
 
+import platform
 import shutil
 
 import mne
@@ -13,6 +14,9 @@ from config import fname
 # In this experiment, we only have a single task.
 # If you have more tasks, you can create another loop over them.
 task = "audvis"
+
+# Figure out on which platform we are.
+system_supports_symlinks = platform.system() != "Windows"
 
 # Loop over all subjects, sessions, and runs.
 for subject in config.subjects:
@@ -44,6 +48,7 @@ for subject in config.subjects:
                 bids_path,
                 events=events,
                 event_id=config.event_id,
+                symlink=system_supports_symlinks,
                 overwrite=True,
             )
 
