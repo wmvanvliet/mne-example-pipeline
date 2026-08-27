@@ -2,8 +2,6 @@
 Compute average of the power maps of morphed source estimates.
 """
 
-from __future__ import print_function
-
 import mne
 import numpy as np
 
