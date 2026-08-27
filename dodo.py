@@ -260,13 +260,30 @@ def task_ga():
         ],
     )
 
+def task_statistics():
+    """Step 11: Compute sensor-level statistics."""
+    return dict(
+        file_dep= [
+            fname.evokeds(subject=sub, session=ses, task=task)
+            for sub in subjects
+            for ses in sessions
+            for task in tasks
+        ] + [
+            "11_statistics.py",
+        ],
+        targets=[
+        ],
+        actions=[
+            "python 11_statistics.py",
+        ],
+    )
 
 # Finally we define some meta-tasks that run portions of the pipeline.
 def task_sensor():
     """Run all sensor-level analysis steps."""
     return dict(
         actions=None,
-        task_dep=["bids", "tsss", "ica", "epochs"],
+        task_dep=["bids", "tsss", "ica", "epochs", "statistics"],
     )
 
 def task_source():
