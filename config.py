@@ -36,7 +36,7 @@ if host == "deepthought1" and user == "vanvlm1":
     n_jobs = 32
     use_megin_maxfilter = False  # not available on this system
 elif "marijn-laptop" in host and user == "vanvlm1":
-    # Marijn's laptop
+    # Marijn's laptop (Linux)
     raw_data_dir = "./data"
     orig_data_path = "./data/orig"
     bids_path = "./data/bids"
@@ -46,6 +46,16 @@ elif "marijn-laptop" in host and user == "vanvlm1":
     n_jobs = 14
     use_megin_maxfilter = False  # not available on this system
     os.environ["QT_QPA_PLATFORM"] = "xcb"  # needed for 3d graphics to work
+elif user == "wmvan":
+    # Marijn's laptop (Windows)
+    raw_data_dir = "./data"
+    orig_data_path = "./data/orig"
+    bids_path = "./data/bids"
+    processed_data_path = "./data/processed"
+    reports_data_path = "./data/reports"
+    subjects_dir = "./data/bids/derivatives/freesurfer"
+    n_jobs = 14
+    use_megin_maxfilter = False  # not available on this system
 elif host == "d22-0025.org.aalto.fi" and user == "vanvlm1":
     # Marijn's Aalto workstation
     raw_data_dir = "./data"

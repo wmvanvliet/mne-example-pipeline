@@ -111,8 +111,8 @@ else:
         head_pos=head_pos,
         st_duration=min(60, int(raw.duration)),
         destination=fname.raw(session=1, run=1, proc="raw"),
-        calibration=fname.calibration(),
-        cross_talk=fname.crosstalk(),
+        calibration=True,  # fname.calibration(),
+        cross_talk=True,  # fname.crosstalk(),
     )
     raw_tsss.save(fname.raw(proc="tsss"), overwrite=True)
 

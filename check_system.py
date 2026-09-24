@@ -1,3 +1,4 @@
+# encoding: utf-8
 """System checker.
 
 This script performs a series of checks on the system to see if everything is
@@ -6,12 +7,18 @@ ready to run the analysis pipeline.
 
 import importlib
 import os
+import platform
 import re
 from pathlib import Path
 
 import mne
 
 from config import fname
+
+if platform.system() in ("Darwin", "Linux"):
+    unicode = True
+else:  # Windows
+    unicode = False
 
 # Check to see if the python dependencies are fullfilled.
 dependencies = Path("requirements.txt").read_text().split()
@@ -24,13 +31,19 @@ for dep_string in dependencies:
 
     try:
         mod = importlib.import_module(package_name)
-        print(f"├☑ {package_name:<21}", end="")
+        if unicode:
+            print(f"├☑ {package_name:<21}", end="")
+        else:
+            print(f" + {package_name:<21}", end="")
         if hasattr(mod, "__version__"):
             print(mod.__version__)
         else:
             print()
     except ImportError:
-        print(f"├☐ {package_name:<21}")
+        if unicode:
+            print(f"├☐ {package_name:<21}", end="")
+        else:
+            print(f" - {package_name:<21}", end="")
         missing.append(package_name)
 print()
 
